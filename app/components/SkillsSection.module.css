@@ -1,0 +1,120 @@
+.skillsContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    position: relative;
+  }
+  
+  .skillsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Fixed 4 columns */
+    gap: 1.5rem;
+  }
+  
+  .skillCard {
+    background: linear-gradient(135deg, rgba(46, 134, 171, 0.1), rgba(var(--secondary-color-rgb), 0.1));
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+  }
+  
+  .skillCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1), 0 0 10px rgba(var(--secondary-color-rgb), 0.5);
+  }
+  
+  .skillIcon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+  
+  .skillName {
+    font-size: 1.2rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+  
+  .progressBar {
+    background: #e0e0e0;
+    border-radius: 5px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+  
+  .progressFill {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    height: 100%;
+    width: 100%; /* Fixed width to represent proficiency visually */
+    transition: width 0.3s ease-in-out; /* Smooth animation on load */
+  }
+  
+  /* Holographic Background Effect */
+  .skillCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(46, 134, 171, 0.1), rgba(var(--secondary-color-rgb), 0.1));
+    opacity: 0.3;
+    z-index: 0;
+  }
+  
+  /* Ensure card content is above the background */
+  .skillCard > * {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Responsiveness with Fixed Columns */
+  @media (max-width: 1024px) {
+    .skillsGrid {
+      grid-template-columns: repeat(4, 1fr); /* Maintain 4 columns */
+    }
+    .skillCard {
+      padding: 1.2rem;
+    }
+    .skillIcon {
+      font-size: 2rem;
+    }
+    .skillName {
+      font-size: 1.1rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .skillsGrid {
+      grid-template-columns: repeat(4, 1fr); /* Maintain 4 columns */
+    }
+    .skillCard {
+      padding: 1rem;
+    }
+    .skillIcon {
+      font-size: 1.8rem;
+    }
+    .skillName {
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .skillsGrid {
+      grid-template-columns: repeat(4, 1fr); /* Maintain 4 columns */
+    }
+    .skillCard {
+      padding: 0.8rem;
+    }
+    .skillIcon {
+      font-size: 1.5rem;
+    }
+    .skillName {
+      font-size: 0.9rem;
+    }
+  }

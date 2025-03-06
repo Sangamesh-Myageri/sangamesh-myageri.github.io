@@ -1,0 +1,162 @@
+.aboutContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4rem;
+  position: relative;
+}
+
+.aboutText {
+  flex: 2;
+  max-width: 600px;
+}
+
+.aboutText p {
+  font-size: 1.3rem;
+  color: #444;
+  font-family: 'Roboto', sans-serif;
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+
+.aboutCta {
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  border: none;
+  padding: 0.9rem 2rem;
+  color: #fff;
+  font-size: 1.2rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 5px 15px rgba(var(--primary-color), 0.4);
+}
+.aboutCta:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(var(--primary-color), 0.6);
+}
+
+.skillOrbit {
+  flex: 1;
+  position: relative;
+  width: 250px;
+  height: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* Prevent orbit items from overflowing */
+}
+
+.orbitCore {
+  width: 30px;
+  height: 30px;
+  background: var(--secondary-color);
+  border-radius: 50%;
+  position: absolute;
+  z-index: 2;
+  box-shadow: 0 0 10px var(--secondary-color);
+  animation: pulse 2s infinite;
+}
+
+.orbitItem {
+  position: absolute;
+  font-size: 1.1rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-color);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem 1rem;
+  border-radius: 15px;
+  box-shadow: 0 2px 5px var(--shadow-color);
+  animation: orbit 8s linear infinite;
+  transform-origin: 125px 125px; /* Center of the 250x250 container */
+}
+
+.orbitItem:nth-child(2) {
+  animation-delay: -2.67s; /* 8s / 3 */
+}
+.orbitItem:nth-child(3) {
+  animation-delay: -5.33s; /* 8s / 3 * 2 */
+}
+
+@keyframes orbit {
+  0% { transform: rotate(0deg) translate(100px) rotate(0deg); }
+  33.33% { transform: rotate(120deg) translate(100px) rotate(-120deg); }
+  66.66% { transform: rotate(240deg) translate(100px) rotate(-240deg); }
+  100% { transform: rotate(360deg) translate(100px) rotate(-360deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 10px var(--secondary-color); }
+  50% { transform: scale(1.1); box-shadow: 0 0 15px var(--secondary-color); }
+  100% { transform: scale(1); box-shadow: 0 0 10px var(--secondary-color); }
+}
+
+@media (max-width: 768px) {
+  .aboutContainer {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+  }
+  .aboutText {
+    max-width: 100%;
+    margin-bottom: 2rem; /* Ensure separation from skillOrbit */
+  }
+  .skillOrbit {
+    width: 180px; /* Reduced size for mobile */
+    height: 180px;
+    margin: 0 auto; /* Center the orbit */
+  }
+  .orbitCore {
+    width: 25px;
+    height: 25px;
+  }
+  .orbitItem {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+    transform-origin: 90px 90px; /* Adjusted for 180x180 container */
+    animation: orbitMobile 8s linear infinite;
+  }
+  .orbitItem:nth-child(2) {
+    animation-delay: -2.67s;
+  }
+  .orbitItem:nth-child(3) {
+    animation-delay: -5.33s;
+  }
+}
+
+@media (max-width: 480px) {
+  .aboutContainer {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+  .aboutText p {
+    font-size: 1.1rem;
+  }
+  .aboutCta {
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+  }
+  .skillOrbit {
+    width: 140px; /* Further reduced for smaller screens */
+    height: 140px;
+  }
+  .orbitCore {
+    width: 20px;
+    height: 20px;
+  }
+  .orbitItem {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+    transform-origin: 70px 70px; /* Adjusted for 140x140 container */
+  }
+}
+
+/* Adjusted orbit animation for mobile */
+@keyframes orbitMobile {
+  0% { transform: rotate(0deg) translate(60px) rotate(0deg); }
+  33.33% { transform: rotate(120deg) translate(60px) rotate(-120deg); }
+  66.66% { transform: rotate(240deg) translate(60px) rotate(-240deg); }
+  100% { transform: rotate(360deg) translate(60px) rotate(-360deg); }
+}
