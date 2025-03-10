@@ -2,10 +2,10 @@
 const nextConfig = {
   output: 'export',
   images: {
-      unoptimized: true,
+    unoptimized: true,
   },
-  assetPrefix: '/sangamesh-myageri.github.io/', // Replace with your repo name
-  trailingSlash: true, // Optional, but recommended
+  assetPrefix: './', // Use relative paths for GitHub Pages root deployment
+  trailingSlash: true, // Optional, but recommended for static sites
 };
 
 module.exports = nextConfig;
