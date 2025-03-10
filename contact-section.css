@@ -1,0 +1,197 @@
+/* contact-section.css */
+.contactContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    display: flex;
+    gap: 3rem;
+}
+
+.contactForm {
+    flex: 1;
+    background: linear-gradient(135deg, rgba(46, 134, 171, 0.1), rgba(var(--secondary-color-rgb), 0.1));
+    padding: 2rem;
+    border-radius: 15px;
+    position: relative;
+}
+
+.formGroup {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.formGroup label {
+    display: block;
+    font-size: 1.1rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.formInput,
+.formTextarea {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    font-family: 'Roboto', sans-serif;
+    color: #444;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid transparent;
+    border-radius: 5px;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+    outline: none;
+    border: 2px solid var(--secondary-color);
+    box-shadow: 0 0 10px var(--secondary-color);
+}
+
+.formTextarea {
+    height: 150px;
+    resize: none;
+}
+
+.submitButton {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.submitButton:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--secondary-color);
+}
+
+/* Social Links */
+.socialLinks {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.socialTitle {
+    font-size: 1.8rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    text-shadow: 0 0 5px rgba(46, 134, 171, 0.5);
+}
+
+.socialIcons {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.socialIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.socialIcon:hover {
+    transform: rotate(360deg);
+    box-shadow: 0 0 15px var(--secondary-color);
+}
+
+/* Holographic Background Effect for Form */
+.contactForm::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(46, 134, 171, 0.1), rgba(var(--secondary-color-rgb), 0.1));
+    opacity: 0.3;
+    z-index: 0;
+}
+
+/* Ensure form content is above the background */
+.contactForm form {
+    position: relative;
+    z-index: 1;
+}
+
+/* Error Message Styling */
+.error {
+    display: block;
+    color: #ff0000;
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+    display: none;
+}
+
+/* Responsiveness */
+@media (max-width: 1024px) {
+    .contactContainer {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .contactForm {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .contactForm {
+        padding: 1rem;
+    }
+    .formInput,
+    .formTextarea {
+        font-size: 0.9rem;
+    }
+    .submitButton {
+        font-size: 1rem;
+        padding: 0.7rem 1.5rem;
+    }
+    .socialTitle {
+        font-size: 1.5rem;
+    }
+    .socialIcon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .formGroup label {
+        font-size: 1rem;
+    }
+    .formInput,
+    .formTextarea {
+        font-size: 0.8rem;
+    }
+    .submitButton {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
+    }
+    .socialTitle {
+        font-size: 1.3rem;
+    }
+    .socialIcon {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+}
