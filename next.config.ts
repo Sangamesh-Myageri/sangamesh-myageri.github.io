@@ -1,11 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // Enables static export
+  output: 'export', // Static export
   images: {
-    unoptimized: true, // Required for static export as GitHub Pages doesn’t support Next.js image optimization
+    unoptimized: true, // Required for static export
   },
-  // Optional: Add basePath if deploying to a subdirectory (e.g., github.io/repo)
-  // basePath: '/portfolio-sangamesh',
+  // Add basePath if deploying to a subdirectory (e.g., /portfolio)
+  // basePath: '', // Leave empty for root deployment
+  // Optional: Asset prefix to match the root
+  assetPrefix: './', // Ensures assets are loaded relative to the root
 };
 
 module.exports = nextConfig;
