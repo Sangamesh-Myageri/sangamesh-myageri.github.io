@@ -1,9 +1,6 @@
 import './globals.css'; // Optional: For global styles if needed
 import Head from 'next/head';
 import Header from './components/Header';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
 import Footer from './components/Footer';
 
 export const metadata = {
@@ -36,7 +33,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <Head>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+        <link
+          rel="stylesheet"
+          href="/webfonts/all.min.css" // Local FontAwesome CSS
+        />
+        <link
+          rel="stylesheet"
+          href="/webfonts/slick.css" // Local Slick CSS
+        />
+        <link
+          rel="stylesheet"
+          href="/webfonts/slick-theme.css" // Local Slick Theme CSS
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Roboto:wght@400;500&display=swap"
+          rel="stylesheet"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <body>
