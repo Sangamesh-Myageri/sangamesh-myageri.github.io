@@ -207,6 +207,12 @@ a {
     border-radius: 50%;
     object-fit: cover;
 }
+@media (max-width: 768px) {
+    .profileImage img {
+        width: 40px; /* Adjust size for smaller screens */
+        height: 40px;
+    }
+}
 
 .profileInfo h3 {
     margin: 0;
