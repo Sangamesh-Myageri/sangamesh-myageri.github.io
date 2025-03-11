@@ -163,7 +163,7 @@ $(document).ready(function () {
         if (isValid) {
             // Simulate form submission (log to console for demo)
             console.log('Form submitted:', { name, email, message });
-            alert('Message sent! (This is a demo)');
+            alert('Thank You!');
             $('#contactForm')[0].reset();
         }
     });
