@@ -1,3 +1,332 @@
+HTML:
+
+```
+<div class="amexgbt-ai-chatbot-container" id="amexgbt-ai-chatbot">
+  <div class="chatbot-header">
+    <span>Developer Portal AI Assistant</span>
+    <div class="chatbot-header-actions">
+      <button class="chatbot-minimize-btn">
+        <i class="fas fa-window-minimize"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="chatbot-body">
+    <div class="chatbot-messages">
+      <div class="chatbot-message bot initial-message">
+        How can I help you today?
+      </div>
+    </div>
+  </div>
+  
+  <div class="chatbot-input">
+    <input type="text" placeholder="Ask a question..." class="chatbot-input-field">
+    <button class="chatbot-send-btn">Send</button>
+  </div>
+</div>
+
+<div class="chatbot-minimized-container" id="chatbot-minimized" style="display: none;">
+  <div class="chatbot-minimized">
+    <i class="fas fa-robot"></i>
+    <span>Developer Portal AI Assistant</span>
+  </div>
+</div>
+```
+CSS:
+
+```.amexgbt-ai-chatbot-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 350px;
+  height: 250px;
+  background-color: #e8f0f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: height 0.3s ease-in-out;
+}
+
+.chatbot-header {
+  background-color: #006fcf;
+  color: white;
+  padding: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chatbot-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.chatbot-header-actions button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.chatbot-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chatbot-messages {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #006fcf #e8f0f9;
+}
+
+.chatbot-input {
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-top: 1px solid #ddd;
+  display: flex;
+  gap: 10px;
+}
+
+.chatbot-input input {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.chatbot-input button {
+  padding: 8px 15px;
+  background-color: #006fcf;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.chatbot-input button:disabled {
+  background-color: #a0c4e4;
+  cursor: not-allowed;
+}
+
+.chatbot-message {
+  max-width: 85%;
+  margin: 5px 0;
+  padding: 8px;
+  border-radius: 12px;
+  word-wrap: break-word;
+  position: relative;
+}
+
+.chatbot-message.user {
+  background-color: #00175a;
+  color: white;
+  align-self: flex-end;
+  margin-left: auto;
+  text-align: right;
+}
+
+.chatbot-message.bot {
+  background-color: #f0f0f0;
+  color: #00175a;
+  align-self: flex-start;
+}
+
+.message-actions {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  align-items: center;
+}
+.message-copy-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+.copy-message-btn {
+  background: none;
+  border: none;
+  color: #006fcf;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.3s ease;
+}
+
+.copy-message-btn:hover {
+  color: #00175a;
+}
+
+.copy-message-btn.copied {
+  color: green;
+}
+
+/* Loading Dots Animation */
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.loading-dots .dot {
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  background-color: #006fcf;
+  border-radius: 50%;
+  animation: bounce 0.5s ease-in-out infinite alternate;
+}
+
+.loading-dots .dot:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.loading-dots .dot:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Minimized State */
+.chatbot-minimized-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+}
+
+.chatbot-minimized {
+  background-color: #006fcf;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chatbot-minimized i {
+  font-size: 20px;
+}
+
+.chatbot-input button.disabled {
+  background-color: #a0c4e4;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.message-actions-bottom {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.copy-message-btn-bottom {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.copy-message-btn-bottom .copy-icon {
+  display: flex;
+  align-items: center;
+}
+
+.copy-message-btn-bottom:hover {
+  background-color: #e0e0e0;
+}
+
+.error-notification {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ff4d4d;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+/* Webkit (Chrome, Safari, newer versions of Opera) */
+.chatbot-messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chatbot-messages::-webkit-scrollbar-track {
+  background: #e8f0f9;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb {
+  background-color: #006fcf;
+  border-radius: 4px;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb:hover {
+  background-color: #00175a;
+}
+
+.chatbot-message p {
+  margin: 10px 0;
+}
+
+.chatbot-message ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.chatbot-message li {
+  margin-bottom: 5px;
+}
+
+.chatbot-message pre.code-block {
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 10px 0;
+  overflow-x: auto;
+}
+
+.chatbot-message ol {
+  margin: 10px 0;
+  padding-left: 30px;
+}
+
+.chatbot-message ol li {
+  margin-bottom: 5px;
+}```
+
 /**
  * prettifyApiText(rawText)  ➜  returns HTML string
  * ---------------------------------------------------------------------------
