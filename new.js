@@ -473,6 +473,7 @@
 
 
 
+
 Raw text:
 
 Let me explain API with a simple example:\n\nWhat is an API?\nThink of an API like a restaurant waiter - it takes requests and brings back information between you and a system.\n\nExample using AmexGBT\u0027s Trips API:\n\n1. You Want Trip Information:\n```\nLike saying to a waiter: \u0022What\u0027s my flight details?\u0022\n```\n\n2. Making the API Request:\n```\nGET https:\/\/apicert.amexgbt.com\/trips\/v1?tripid=12345\nHeaders:\n    Accept: application\/json\n    APIKey: your-key-here\n```\n\n3. API Returns Information:\n```json\n{\n    \u0022TripDetails\u0022: {\n        \u0022Traveler\u0022: {\n            \u0022Name\u0022: \u0022John Smith\u0022\n        },\n        \u0022Flight\u0022: {\n            \u0022From\u0022: \u0022Phoenix\u0022,\n            \u0022To\u0022: \u0022Chicago\u0022,\n            \u0022Date\u0022: \u0022Dec 25, 2023\u0022,\n            \u0022Time\u0022: \u002210:00 AM\u0022\n        }\n    }\n}\n```\n\nRestaurant Comparison:\n- You (Customer) \u2192 Waiter (API) \u2192 Kitchen (Database) \u2192 Waiter (API) \u2192 You\n- Order (Request) \u2192 Get Food (Response)\n\nSimple Points:\n- API is like a waiter\n- You make a request (order)\n- API gets information (your food)\n- Returns what you asked for\n\nFor additional API questions, contact DataServicesSupport@amexgbt.com.
