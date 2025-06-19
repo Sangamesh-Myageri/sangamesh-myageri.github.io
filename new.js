@@ -172,6 +172,72 @@
         return out.join("\n");
       }
 
+      // Convert HTML content to plain text
+      function htmlToPlainText($element) {
+        let text = "";
+        let listLevel = 0;
+
+        function addIndent(level) {
+          return " ".repeat(level * 2);
+        }
+
+        function processElement($el) {
+          const nodeType = $el[0].nodeType;
+          const tagName = $el[0].tagName;
+
+          if (nodeType === Node.TEXT_NODE) {
+            return $el.text().trim() + " ";
+          }
+
+          if (nodeType === Node.ELEMENT_NODE) {
+            switch (tagName) {
+              case "P":
+                return $el.text().trim() + "\n\n";
+
+              case "OL":
+                listLevel++;
+                let olText = "";
+                $el.find("> li").each(function (index) {
+                  olText += `${addIndent(listLevel - 1)}${index + 1}. ${$(this)
+                    .text()
+                    .trim()}\n`;
+                });
+                olText += "\n";
+                listLevel--;
+                return olText;
+
+              case "UL":
+                listLevel++;
+                let ulText = "";
+                $el.find("> li").each(function () {
+                  ulText += `${addIndent(listLevel - 1)}- ${$(this)
+                    .text()
+                    .trim()}\n`;
+                });
+                ulText += "\n";
+                listLevel--;
+                return ulText;
+
+              case "PRE":
+                if ($el.hasClass("code-block")) {
+                  const codeContent = $el.text().trim();
+                  return codeContent ? "```\n" + codeContent + "\n```\n\n" : "";
+                }
+                return $el.text().trim() + "\n\n";
+            }
+          }
+
+          return "";
+        }
+
+        // Traverse through child nodes
+        $element.contents().each(function () {
+          text += processElement($(this));
+        });
+
+        return text.trim();
+      }
+
       // More flexible path and container checking
       const $chatbotContainer = $(context).find(
         ".amexgbt-ai-chatbot-container"
@@ -403,6 +469,7 @@
     },
   };
 })(jQuery, Drupal, drupalSettings);
+
 
 
 
