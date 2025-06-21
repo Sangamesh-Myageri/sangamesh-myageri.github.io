@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Response Formatter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .chatbot-message {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .chatbot-message p {
+            margin: 10px 0;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* Top-level numbered items (e.g., "1. APIkey Authentication") */
+        .chatbot-message p.level-1 {
+            padding-left: 0;
+            margin-left: 20px;
+        }
+
+        /* Bullet points (e.g., "Simplest authentication method") */
+        .chatbot-message p.bullet::before {
+            content: "- ";
+            position: absolute;
+            left: 20px;
+        }
+
+        .chatbot-message p.bullet {
+            padding-left: 40px;
+        }
+
+        /* Nested numbered items (e.g., "a. Call OAuth2 API...") */
+        .chatbot-message p.level-2 {
+            padding-left: 60px;
+        }
+
+        /* Sub-points under nested items (e.g., "URL:") */
+        .chatbot-message p.sub-bullet::before {
+            content: "- ";
+            position: absolute;
+            left: 60px;
+        }
+
+        .chatbot-message p.sub-bullet {
+            padding-left: 80px;
+        }
+
+        .chatbot-message h4 {
+            margin: 20px 0 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #004d99;
+        }
+
+        .chatbot-message pre.code-block {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 10px 0;
+            overflow-x: auto;
+            color: #333;
+        }
+
+        .chatbot-message a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .chatbot-message a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .chatbot-message {
+                padding: 10px;
+            }
+            .chatbot-message pre.code-block {
+                font-size: 14px;
+            }
+            .chatbot-message p.level-1 {
+                margin-left: 10px;
+            }
+            .chatbot-message p.bullet {
+                padding-left: 20px;
+            }
+            .chatbot-message p.level-2 {
+                padding-left: 30px;
+            }
+            .chatbot-message p.sub-bullet {
+                padding-left: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>API Response Formatter</h1>
+
+    <div class="container">
+        <div class="form-group">
+            <textarea id="rawInput" class="input-textarea" placeholder="Paste raw API response here..."></textarea>
+        </div>
+
+        <button id="formatBtn" class="btn btn-primary">Format Response</button>
+
+        <div class="output-section" style="display:none;">
+            <h3>Formatted Response</h3>
+            <div id="formattedOutput" class="formatted-output chatbot-message"></div>
+            <button class="btn btn-success" onclick="copyToClipboard()">Copy Formatted Response</button>
+        </div>
+    </div>
+    <script>
+        document.getElementById("formatBtn").addEventListener("click", function () {
+            const rawInputText = document.getElementById("rawInput").value.trim();
+            if (rawInputText) {
+                const formattedText = prettifyApiText(rawInputText);
+                document.getElementById("formattedOutput").innerHTML = formattedText;
+                document.querySelector(".output-section").style.display = "block";
+            }
+        });
+
+        function copyToClipboard() {
+            const formattedText = document.getElementById("formattedOutput").innerText;
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = formattedText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempTextArea);
+            alert("Formatted text copied to clipboard!");
+        }
+
+        function prettifyApiText(rawText) {
+            if (!rawText || typeof rawText !== "string") return "";
+
+            const unescaped = rawText
+                .replace(/\\n/g, "\n")
+                .replace(/\\t/g, "    ")
+                .replace(/\\"/g, '"')
+                .replace(/\\\//g, "/")
+                .replace(/\\u0027/g, "'")
+                .replace(/\\u0022/g, '"');
+
+            const lines = unescaped.split("\n");
+
+            const escape = (s) =>
+                s.replace(
+                    /[&<>]/g,
+                    (c) => ({
+                        "&": "&",
+                        "<": "<",
+                        ">": ">",
+                    })[c]
+                );
+
+            let emailProcessed = false;
+            const processInline = (text) => {
+                if (!emailProcessed && /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/.test(text)) {
+                    text = text.replace(
+                        /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/,
+                        '<a href="mailto:$1">$1</a>'
+                    );
+                    emailProcessed = true;
+                }
+                return text;
+            };
+
+            const out = [];
+            let buffer = [];
+            let inCodeBlock = false;
+            let codeBlockContent = [];
+            let listStack = [];
+            let itemCount = 0;
+            let currentSection = null;
+            let isNested = false;
+
+            const flushParagraph = (className = "") => {
+                if (buffer.length) {
+                    const classAttr = className ? ` class="${className}"` : "";
+                    out.push(`<p${classAttr}>` + escape(processInline(buffer.join(" ").trim())) + "</p>");
+                    buffer = [];
+                }
+            };
+
+            const closeLists = () => {
+                while (listStack.length) {
+                    const { type } = listStack.pop();
+                    out.push(type === "ul" ? "</ul>" : "</ol>");
+                }
+                itemCount = 0;
+                isNested = false;
+            };
+
+            const closeCodeBlock = () => {
+                if (inCodeBlock) {
+                    out.push('<pre class="code-block">' + codeBlockContent.join("\n") + "</pre>");
+                    inCodeBlock = false;
+                    codeBlockContent = [];
+                }
+            };
+
+            lines.forEach((line) => {
+                const trimmedLine = line.trim();
+                const indentLevel = line.match(/^\s*/)[0].length;
+
+                if (trimmedLine === "```") {
+                    if (inCodeBlock) closeCodeBlock();
+                    else inCodeBlock = true;
+                    return;
+                }
+
+                if (inCodeBlock) {
+                    codeBlockContent.push(line);
+                    return;
+                }
+
+                if (!trimmedLine) {
+                    flushParagraph();
+                    closeLists();
+                    return;
+                }
+
+                // Detect section headers (e.g., "1. APIkey Authentication")
+                const sectionMatch = trimmedLine.match(/^(\d+\.\s+)(.*)$/);
+                if (sectionMatch) {
+                    flushParagraph();
+                    closeLists();
+                    closeCodeBlock();
+                    currentSection = sectionMatch[2].trim(); // Use only the text after the number
+                    out.push(`<p class="level-1">${sectionMatch[1]}${currentSection}</p>`); // Include the original "1. " in the text
+                    return;
+                }
+
+                // Handle code block after section header
+                if (trimmedLine.startsWith("GET") && currentSection) {
+                    codeBlockContent.push(trimmedLine);
+                    inCodeBlock = true;
+                    return;
+                }
+
+                // Handle sub-points under sections
+                if (currentSection) {
+                    const bulletMatch = trimmedLine.match(/^-\s*(.+)/);
+                    if (bulletMatch) {
+                        flushParagraph();
+                        buffer = [bulletMatch[1]]; // Use only the text after "-"
+                        out.push(`<p class="bullet">${escape(processInline(buffer.join(" ").trim()))}</p>`);
+                        buffer = [];
+                        return;
+                    }
+                    const nestedMatch = trimmedLine.match(/^[a-z]\.\s*(.+)/);
+                    if (nestedMatch) {
+                        flushParagraph();
+                        buffer = [nestedMatch[1]]; // Use only the text after "a."
+                        out.push(`<p class="level-2">${trimmedLine}</p>`); // Use the full line with "a. " intact
+                        isNested = true;
+                        return;
+                    }
+                    if (isNested && trimmedLine.startsWith("-")) {
+                        flushParagraph();
+                        buffer = [trimmedLine.replace(/^-\s*/, "")]; // Use only the text after "-"
+                        out.push(`<p class="sub-bullet">${escape(processInline(buffer.join(" ").trim()))}</p>`);
+                        buffer = [];
+                        return;
+                    }
+                }
+
+                // Handle "Error Responses" section
+                if (trimmedLine.match(/^[A-Z][a-zA-Z\s]+:$/)) {
+                    flushParagraph();
+                    closeLists();
+                    closeCodeBlock();
+                    out.push(`<h4>${escape(trimmedLine)}</h4>`);
+                    currentSection = null;
+                    isNested = false;
+                } else if (trimmedLine.startsWith("-") && !currentSection) {
+                    flushParagraph();
+                    buffer = [trimmedLine.replace(/^-\s*/, "")]; // Use only the text after "-"
+                    out.push(`<p class="bullet">${escape(processInline(buffer.join(" ").trim()))}</p>`);
+                    buffer = [];
+                } else {
+                    buffer.push(trimmedLine);
+                }
+            });
+
+            flushParagraph();
+            closeLists();
+            closeCodeBlock();
+
+            return out.join("\n");
+        }
+    </script>
+</body>
+
+</html>
