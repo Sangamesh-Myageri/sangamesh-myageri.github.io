@@ -1,6 +1,6 @@
 // Portfolio JavaScript - Main File
 
-// DOM Element
+// DOM Elements
 const navbar = document.getElementById('navbar');
 const mobileMenuToggle = document.getElementById('mobileMenuToggle');
 const navMenu = document.getElementById('navMenu');
