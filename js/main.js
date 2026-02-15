@@ -481,4 +481,3 @@ createBackToTop();
 document.addEventListener('DOMContentLoaded', () => {
     console.log('%c✨ Portfolio website initialized successfully!', 'color: #50FA7B; font-size: 14px;');
 });
-      
