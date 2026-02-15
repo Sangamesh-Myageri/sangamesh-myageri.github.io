@@ -35,11 +35,12 @@ if (mobileMenuToggle) {
 const typedText = document.getElementById('typedText');
 if (typedText) {
     const texts = [
-        'build exceptional web applications',
-        'create mobile experiences',
-        'design scalable architectures',
-        'solve complex problems',
-        'love clean code'
+        'build scalable Drupal applications',
+        'develop custom modules',
+        'create responsive themes',
+        'integrate third-party APIs',
+        'optimize web performance',
+        'solve complex problems'
     ];
     
     let textIndex = 0;
@@ -480,4 +481,14 @@ createBackToTop();
 // Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     console.log('%c✨ Portfolio website initialized successfully!', 'color: #50FA7B; font-size: 14px;');
+    
+    // Update footer year dynamically
+    const footerYear = document.querySelectorAll('.footer-content p');
+    const currentYear = new Date().getFullYear();
+    
+    footerYear.forEach(element => {
+        if (element.textContent.includes('2024')) {
+            element.textContent = element.textContent.replace('2024', currentYear);
+        }
+    });
 });
