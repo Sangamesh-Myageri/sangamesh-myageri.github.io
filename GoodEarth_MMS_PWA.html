@@ -1,0 +1,2312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>GoodEarth MMS</title>
+<meta name="application-name" content="GoodEarth MMS">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GE MMS">
+<meta name="theme-color" content="#0E1018" id="metaThemeColor">
+<meta name="description" content="GoodEarth Material Management System — Indent, PO, Inward, Stock & Issues">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" id="pwaManifest">
+<!-- Inline SVG icons as data URIs for offline use -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%230E1018'/><text y='130' x='20' font-size='110' font-family='serif'>🌱</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── DARK THEME (default) ── */
+:root{
+  --bg:#0E1018;--bg2:#161825;--bg3:#1C1F2E;--bg4:#242638;
+  --border:#2C2F42;--border2:#383B52;
+  --text:#E8EAF6;--text2:#9CA3C4;--text3:#5C6080;
+  --white:#FFFFFF;
+  --amber:#F59E0B;--amber-d:#D97706;--amber-lt:rgba(245,158,11,.13);
+  --teal:#14B8A6;--teal-d:#0F9688;--teal-lt:rgba(20,184,166,.13);
+  --blue:#6366F1;--blue-d:#4F52D4;--blue-lt:rgba(99,102,241,.13);
+  --rose:#F43F5E;--rose-lt:rgba(244,63,94,.13);
+  --green:#22C55E;--green-lt:rgba(34,197,94,.13);
+  --purple:#A855F7;--purple-lt:rgba(168,85,247,.13);
+  --orange:#F97316;--orange-lt:rgba(249,115,22,.13);
+  --r:10px;--r2:14px;
+}
+/* ── LIGHT THEME ── */
+[data-theme="light"]{
+  --bg:#F5F3EE;--bg2:#FFFFFF;--bg3:#F0EDE6;--bg4:#E8E4DB;
+  --border:#D8D2C4;--border2:#C8C2B4;
+  --text:#1A1A18;--text2:#4A4840;--text3:#7A7868;
+  --white:#1A1A18;
+  --amber:#C47C00;--amber-d:#A36500;--amber-lt:rgba(196,124,0,.12);
+  --teal:#0A7A6E;--teal-d:#065F55;--teal-lt:rgba(10,122,110,.12);
+  --blue:#3B3DC8;--blue-d:#2E2FA8;--blue-lt:rgba(59,61,200,.12);
+  --rose:#C0182E;--rose-lt:rgba(192,24,46,.12);
+  --green:#157A38;--green-lt:rgba(21,122,56,.12);
+  --purple:#6B16A8;--purple-lt:rgba(107,22,168,.12);
+  --orange:#B84800;--orange-lt:rgba(184,72,0,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);font-size:13.5px;min-height:100vh;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ── TOPBAR ── */
+#topbar{height:52px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:12px;position:sticky;top:0;z-index:300;flex-shrink:0}
+.brand{font-family:'Playfair Display',serif;font-size:17px;font-weight:800;color:var(--white);white-space:nowrap;letter-spacing:-.3px}
+.brand span{color:var(--amber)}
+.tb-sep{width:1px;height:20px;background:var(--border)}
+.role-pill{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:4px 10px}
+.role-pill label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3)}
+#roleSelect{background:transparent;border:none;color:var(--text);font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;cursor:pointer;outline:none}
+#roleSelect option{background:var(--bg3);color:var(--text)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.tb-date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)}
+.tb-storage{font-size:10px;color:var(--green);font-weight:600;background:var(--green-lt);padding:2px 7px;border-radius:4px}
+
+/* WORKFLOW STRIP */
+#wf-strip{background:var(--bg3);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:0;overflow-x:auto;flex-shrink:0}
+.wf-step{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:11.5px;font-weight:600;color:var(--text3);border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.wf-num{width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700}
+.wf-step.s-qs{color:var(--amber);border-bottom-color:var(--amber)}.wf-step.s-qs .wf-num{background:var(--amber-lt);color:var(--amber)}
+.wf-step.s-pm{color:var(--blue)}.wf-step.s-pm .wf-num{background:var(--blue-lt);color:var(--blue)}
+.wf-step.s-comm{color:var(--teal)}.wf-step.s-comm .wf-num{background:var(--teal-lt);color:var(--teal)}
+.wf-step.s-store{color:var(--green)}.wf-step.s-store .wf-num{background:var(--green-lt);color:var(--green)}
+.wf-arr{color:var(--border2);font-size:13px;padding:0 3px}
+
+/* LAYOUT */
+.app{display:flex;flex:1;min-height:0}
+nav{width:196px;background:var(--bg2);border-right:1px solid var(--border);padding:10px 0;flex-shrink:0;position:sticky;top:84px;height:calc(100vh - 84px);overflow-y:auto;display:flex;flex-direction:column}
+main{flex:1;padding:20px;overflow-y:auto;min-width:0}
+.page{display:none}
+.page.active{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* NAV */
+.nsec{padding:12px 13px 4px;font-size:9px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--text3)}
+.nbtn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 13px;background:none;border:none;font-family:'Manrope',sans-serif;font-size:12.5px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;text-align:left;border-left:2px solid transparent}
+.nbtn:hover{background:var(--bg3);color:var(--text)}
+.nbtn.active{background:var(--bg3);color:var(--amber);font-weight:700;border-left-color:var(--amber)}
+.ni{font-size:14px;width:16px;text-align:center;flex-shrink:0}
+.nbadge{margin-left:auto;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;font-family:'JetBrains Mono',monospace}
+.nb-a{background:var(--amber-lt);color:var(--amber)}.nb-b{background:var(--blue-lt);color:var(--blue)}
+.nb-t{background:var(--teal-lt);color:var(--teal)}.nb-g{background:var(--green-lt);color:var(--green)}
+.nb-r{background:var(--rose-lt);color:var(--rose)}
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:10px;flex-wrap:wrap}
+.ph h1{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--white);letter-spacing:-.3px}
+.ph p{font-size:11.5px;color:var(--text3);margin-top:3px}
+.ph-acts{display:flex;gap:7px;flex-wrap:wrap}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:700;font-family:'Manrope',sans-serif;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-amber{background:var(--amber);color:#000}.btn-amber:hover{background:var(--amber-d)}
+.btn-teal{background:var(--teal);color:#000}.btn-teal:hover{background:var(--teal-d)}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--blue-d)}
+.btn-green{background:var(--green);color:#000}.btn-green:hover{background:#16A34A}
+.btn-rose{background:var(--rose);color:#fff}.btn-rose:hover{background:#E11D48}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{background:var(--bg4);color:var(--text)}
+.btn-sm{padding:5px 10px;font-size:11.5px;border-radius:6px}
+.btn-xs{padding:3px 7px;font-size:11px;border-radius:5px}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:11px;margin-bottom:18px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:15px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.s-a::before{background:var(--amber)}.s-t::before{background:var(--teal)}.s-b::before{background:var(--blue)}
+.s-g::before{background:var(--green)}.s-r::before{background:var(--rose)}.s-p::before{background:var(--purple)}
+.stat-v{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:var(--white);line-height:1}
+.stat-l{font-size:10px;color:var(--text3);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:14px}
+.card-h{padding:12px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.card-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text2)}
+.cb{padding:15px}
+
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{background:var(--bg3);padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+thead th.c-qs{border-top:2px solid var(--amber)}
+thead th.c-pm{border-top:2px solid var(--blue)}
+thead th.c-comm{border-top:2px solid var(--teal)}
+thead th.c-store{border-top:2px solid var(--green)}
+tbody td{padding:9px 11px;border-bottom:1px solid var(--bg3);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--bg3)}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)}
+.pl-tag{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;background:var(--amber-lt);color:var(--amber);padding:2px 6px;border-radius:4px;border:1px solid rgba(245,158,11,.2);white-space:nowrap}
+
+/* TOOLBAR */
+.tb2{padding:10px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.srch{flex:1;min-width:160px;max-width:280px;padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-family:'Manrope',sans-serif;font-size:12.5px;background:var(--bg3);color:var(--text)}
+.srch:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-lt)}
+.ftabs{display:flex;gap:5px;flex-wrap:wrap}
+.ftab{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Manrope',sans-serif;transition:all .15s}
+.ftab:hover,.ftab.act{background:var(--amber);color:#000;border-color:var(--amber)}
+
+/* CHIPS */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:20px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.cd{width:5px;height:5px;border-radius:50%}
+.c-pend{background:var(--amber-lt);color:var(--amber)}.c-pend .cd{background:var(--amber)}
+.c-appr{background:var(--green-lt);color:var(--green)}.c-appr .cd{background:var(--green)}
+.c-rej{background:var(--rose-lt);color:var(--rose)}.c-rej .cd{background:var(--rose)}
+.c-done{background:var(--blue-lt);color:var(--blue)}.c-done .cd{background:var(--blue)}
+.c-sent{background:var(--teal-lt);color:var(--teal)}.c-sent .cd{background:var(--teal)}
+.c-draft{background:var(--bg4);color:var(--text3)}
+.c-part{background:var(--purple-lt);color:var(--purple)}.c-part .cd{background:var(--purple)}
+
+/* TEAM OWNER */
+.own{display:inline-flex;align-items:center;gap:3px;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.4px}
+.own-qs{background:var(--amber-lt);color:var(--amber)}.own-pm{background:var(--blue-lt);color:var(--blue)}
+.own-comm{background:var(--teal-lt);color:var(--teal)}.own-store{background:var(--green-lt);color:var(--green)}
+
+/* PIPELINE FLOW */
+.pf{display:flex;align-items:center;gap:0;flex-wrap:nowrap;overflow-x:auto}
+.pfn{display:flex;flex-direction:column;align-items:center;padding:6px 9px;border-radius:7px;min-width:54px;text-align:center;flex-shrink:0}
+.pfl{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 5px;border-radius:3px;margin-bottom:2px}
+.pfname{font-size:8.5px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.pfn-done .pfl{background:var(--green-lt);color:var(--green)}.pfn-done .pfname{color:var(--green)}
+.pfn-cur .pfl{background:var(--amber);color:#000}.pfn-cur .pfname{color:var(--amber)}
+.pfn-wait .pfl{background:var(--bg4);color:var(--text3)}.pfn-wait .pfname{color:var(--text3)}
+.pfa{color:var(--border2);font-size:13px;padding:0 1px;flex-shrink:0}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:400;align-items:flex-start;justify-content:center;padding:14px;overflow-y:auto}
+.overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);width:900px;max-width:100%;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:mIn .2s ease}
+.modal-sm{width:560px}.modal-md{width:700px}
+@keyframes mIn{from{transform:scale(.97) translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.mh{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1;border-radius:var(--r2) var(--r2) 0 0}
+.mh h2{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:8px}
+.mc{background:none;border:none;font-size:18px;cursor:pointer;color:var(--text3);line-height:1;padding:4px;border-radius:4px}
+.mc:hover{background:var(--bg3);color:var(--text)}
+.mb{padding:18px 20px 22px}
+
+/* FORMS */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fg3{grid-template-columns:1fr 1fr 1fr}
+.fg4{grid-template-columns:1fr 1fr 1fr 1fr}
+.fgr{display:flex;flex-direction:column;gap:4px}
+.fgr.full{grid-column:1/-1}
+.fl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);display:flex;align-items:center;gap:5px}
+.fl .lo{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700;letter-spacing:.3px}
+input,select,textarea{padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-family:'Manrope',sans-serif;font-size:13px;background:var(--bg3);color:var(--text);width:100%;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-lt)}
+input[readonly]{background:var(--bg4);color:var(--text3);cursor:not-allowed}
+textarea{resize:vertical;min-height:65px}
+select option{background:var(--bg3);color:var(--text)}
+.fa{display:flex;gap:7px;margin-top:16px;justify-content:flex-end;flex-wrap:wrap}
+.sdiv{display:flex;align-items:center;gap:8px;margin:16px 0 12px}
+.sdiv-line{flex:1;height:1px;background:var(--border)}
+.sdiv-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3)}
+
+/* MATERIAL TABLE IN FORM */
+.mat-tbl{margin-top:12px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.mth{display:grid;grid-template-columns:70px 90px 80px 1fr 70px 70px 80px 85px 130px 32px;gap:0;background:var(--bg3);border-bottom:1px solid var(--border)}
+.mth span{padding:6px 7px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);border-right:1px solid var(--border)}
+.mth span:last-child{border-right:none}
+.mth span.c-qs-h{color:var(--amber);background:var(--amber-lt)}
+.mth span.c-comm-h{color:var(--teal);background:var(--teal-lt)}
+.mr{display:grid;grid-template-columns:70px 90px 80px 1fr 70px 70px 80px 85px 130px 32px;gap:0;border-bottom:1px solid var(--border)}
+.mr:last-child{border-bottom:none}
+.mr input,.mr select,.mr textarea{border:none;border-right:1px solid var(--border);border-radius:0;background:transparent;font-size:11.5px;padding:6px 7px;height:100%}
+.mr input:focus,.mr select:focus{background:var(--bg3);outline:none;box-shadow:none}
+.mr input[readonly]{background:rgba(99,102,241,.07);color:var(--blue)}
+.mr input.rate-field{background:rgba(20,184,166,.05);color:var(--teal)}
+.add-mr{width:100%;background:none;border:none;border-top:1px dashed var(--border2);color:var(--text3);font-family:'Manrope',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;padding:8px;transition:all .15s}
+.add-mr:hover{background:var(--bg3);color:var(--amber)}
+.rm-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;width:32px}
+.rm-btn:hover{color:var(--rose)}
+
+/* DETAIL VIEW */
+.det-g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.det-box{background:var(--bg3);border-radius:8px;padding:11px;border:1px solid var(--border)}
+.det-l{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.det-v{font-size:13px;color:var(--white);font-weight:500}
+
+/* ACTIVITY LOG */
+.log-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--bg3);align-items:flex-start}
+.log-item:last-child{border-bottom:none}
+.log-ico{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0}
+.log-t{font-size:12.5px;color:var(--text);line-height:1.4;font-weight:600}
+.log-m{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* STOCK BAR */
+.sbar-w{background:var(--bg3);border-radius:3px;height:5px;overflow:hidden;margin-top:3px;min-width:80px}
+.sbar{height:100%;border-radius:3px;transition:width .4s}
+
+/* TOAST */
+#toast{position:fixed;bottom:18px;right:18px;padding:11px 16px;border-radius:9px;font-size:13px;font-weight:700;box-shadow:0 8px 30px rgba(0,0,0,.5);transform:translateY(50px);opacity:0;transition:all .3s;z-index:999;max-width:300px;pointer-events:none;color:#000}
+#toast.show{transform:none;opacity:1}
+.t-amber{background:var(--amber)}.t-green{background:var(--green)}.t-rose{background:var(--rose);color:#fff}
+.t-blue{background:var(--blue);color:#fff}.t-teal{background:var(--teal)}
+
+/* APPROVAL ACTION BOX */
+.action-box{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:15px;margin-top:14px}
+.action-box .ab-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--amber);margin-bottom:10px}
+
+/* OWNER LEGEND */
+.ol{display:flex;gap:10px;flex-wrap:wrap;padding:9px 13px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);margin-bottom:14px}
+.oli{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--text2)}
+.old{width:7px;height:7px;border-radius:2px}
+
+/* INWARD ITEMS */
+.iw-item{display:grid;grid-template-columns:60px 1fr 90px 80px 80px;gap:8px;align-items:center;background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);margin-bottom:8px}
+.iw-item-info{font-size:12.5px;font-weight:500;color:var(--white)}
+.iw-item-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.iw-lbl{font-size:9.5px;color:var(--text3);margin-bottom:3px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+
+/* SUMMARY TABLE */
+.sum-val{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px}
+.sum-pending{color:var(--rose)}.sum-stock{color:var(--green)}.sum-inward{color:var(--teal)}.sum-issued{color:var(--amber)}
+
+/* ── VALIDATION STYLES ── */
+.field-error{border-color:var(--rose)!important;box-shadow:0 0 0 3px var(--rose-lt)!important}
+.err-msg{font-size:11px;color:var(--rose);margin-top:3px;display:none;font-weight:600}
+.err-msg.show{display:block}
+.btn:disabled,.btn[disabled]{opacity:.4;cursor:not-allowed;pointer-events:none}
+.btn-primary-submit{position:relative}
+.req-mark{color:var(--rose);font-size:12px;margin-left:2px}
+
+/* ── THEME TOGGLE ── */
+.theme-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:4px 9px;border-radius:7px;cursor:pointer;font-size:13px;line-height:1;transition:all .15s}
+.theme-btn:hover{background:var(--bg4);color:var(--text)}
+
+/* ── LOGO ── */
+.ge-logo{height:26px;width:auto;flex-shrink:0;object-fit:contain}
+.ge-logo-wrap{display:flex;align-items:center;gap:8px}
+.ge-divider{font-size:11px;color:var(--text3);font-weight:500;white-space:nowrap}
+
+/* ── LIGHT THEME OVERRIDES ── */
+[data-theme="light"] ::-webkit-scrollbar-track{background:var(--bg3)}
+[data-theme="light"] ::-webkit-scrollbar-thumb{background:var(--border)}
+[data-theme="light"] .stat{box-shadow:0 1px 4px rgba(0,0,0,.06)}
+[data-theme="light"] .card{box-shadow:0 1px 4px rgba(0,0,0,.06)}
+[data-theme="light"] tbody tr:hover td{background:var(--bg3)}
+[data-theme="light"] .btn-ghost{border-color:var(--border)}
+[data-theme="light"] #topbar{background:#FFFFFF;border-bottom-color:#E0DBD0}
+[data-theme="light"] #wf-strip{background:#F8F5EF;border-bottom-color:#E0DBD0}
+[data-theme="light"] nav{background:#FFFFFF;border-right-color:#E0DBD0}
+[data-theme="light"] .overlay{background:rgba(0,0,0,.4)}
+[data-theme="light"] .modal{border-color:#E0DBD0}
+/* In light theme the logo is already colored (green/brown) - fine as is */
+
+/* ── ROLE-BASED VISIBILITY ── */
+/* Hidden by JS via data-role-hide attribute */
+[data-role-hide="true"]{display:none!important}
+
+/* ── PWA INSTALL BANNER ── */
+#install-banner{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:var(--amber);color:#000;z-index:500;
+  padding:12px 16px;align-items:center;gap:10px;
+  box-shadow:0 -4px 20px rgba(0,0,0,.3);
+}
+#install-banner.show{display:flex}
+#install-banner p{flex:1;font-size:13px;font-weight:700;line-height:1.3}
+#install-banner p span{display:block;font-size:11px;font-weight:500;opacity:.8;margin-top:2px}
+.ib-close{background:none;border:none;font-size:18px;cursor:pointer;opacity:.7;flex-shrink:0;padding:4px}
+
+/* ── NOTIFICATION BELL ── */
+#notif-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:4px 9px;border-radius:7px;cursor:pointer;font-size:15px;line-height:1;position:relative}
+#notif-btn .n-count{position:absolute;top:-4px;right:-4px;background:var(--rose);color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:8px;min-width:14px;text-align:center}
+
+/* ── MOBILE BOTTOM NAV (phones) ── */
+#bottom-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:var(--bg2);border-top:1px solid var(--border);
+  z-index:100;height:58px;
+}
+#bottom-nav.visible{display:flex}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;background:none;color:var(--text3);font-size:9.5px;font-weight:600;font-family:'Manrope',sans-serif;padding:6px 2px;transition:color .15s;position:relative}
+.bn-item.active,.bn-item:hover{color:var(--amber)}
+.bn-icon{font-size:19px;line-height:1}
+.bn-badge{position:absolute;top:4px;right:calc(50% - 14px);background:var(--rose);color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:8px;min-width:14px;text-align:center}
+
+/* ── ROLE BADGE IN NAV ── */
+.role-indicator{margin:10px 12px 4px;padding:8px 10px;border-radius:8px;font-size:11px;font-weight:700;text-align:center;border:1px solid var(--border)}
+.ri-qs{background:var(--amber-lt);color:var(--amber);border-color:rgba(245,158,11,.3)}
+.ri-pm{background:var(--blue-lt);color:var(--blue);border-color:rgba(99,102,241,.3)}
+.ri-comm{background:var(--teal-lt);color:var(--teal);border-color:rgba(20,184,166,.3)}
+.ri-store{background:var(--green-lt);color:var(--green);border-color:rgba(34,197,94,.3)}
+
+/* ── PUSH NOTIF PERMISSION CARD ── */
+#notif-card{display:none;background:var(--blue-lt);border:1px solid rgba(99,102,241,.3);border-radius:10px;padding:14px;margin-bottom:14px;gap:10px;align-items:flex-start}
+#notif-card.show{display:flex}
+#notif-card p{flex:1;font-size:12.5px;color:var(--text);line-height:1.5}
+
+/* ── MOBILE ADJUSTMENTS for bottom nav ── */
+@media(max-width:600px){
+  nav{display:none}
+  main{padding-bottom:68px}
+  #install-banner{bottom:58px}
+  .app{display:block}
+}
+@media(max-width:860px){
+  nav{width:44px}.nbtn span:not(.ni){display:none}.nsec,.nbadge{display:none}
+  main{padding:12px}.sg{grid-template-columns:1fr 1fr}
+  .fg{grid-template-columns:1fr}.fg3{grid-template-columns:1fr 1fr}
+  .det-g{grid-template-columns:1fr 1fr}
+  .mth,.mr{grid-template-columns:60px 80px 1fr 60px 60px 70px 75px 110px 28px}
+  .ge-logo{height:20px}
+  .ge-divider{display:none}
+  .tb-date{display:none}
+  .overlay{padding:8px}
+  .modal{width:100%!important;border-radius:10px}
+  .ph{flex-direction:column;align-items:flex-start}
+  .ph-acts{width:100%}
+  .ph-acts .btn{flex:1;justify-content:center}
+  thead th{font-size:9px;padding:7px 8px}
+  tbody td{padding:8px}
+  .wf-step{padding:7px 10px;font-size:10.5px}
+}
+@media(max-width:480px){
+  #topbar{padding:0 10px;gap:8px}
+  .role-pill label{display:none}
+  nav{width:40px}
+  main{padding:8px}
+  .sg{grid-template-columns:1fr 1fr}
+  .stat-v{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="ge-logo-wrap">
+    <img src="https://goodearth.org.in/wp-content/uploads/2023/05/goodearth-logo-colored.svg"
+         alt="GoodEarth" class="ge-logo"
+         onerror="this.style.display='none';document.getElementById('brand-fallback').style.display='flex'">
+    <div id="brand-fallback" class="brand" style="display:none">Good<span>Earth</span></div>
+    <span class="ge-divider">| MMS</span>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="role-pill">
+    <label>Role</label>
+    <select id="roleSelect" onchange="changeRole(this.value)">
+      <option value="QS">QS Team</option>
+      <option value="PM">Project Manager (PM)</option>
+      <option value="COMM">Commercial Team</option>
+      <option value="STORE">Store Team</option>
+    </select>
+  </div>
+  <div class="tb-right">
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Switch theme">🌙</button>
+    <button id="notif-btn" onclick="requestNotifPermission()" title="Enable notifications">
+      🔔<span class="n-count" id="notif-count" style="display:none">0</span>
+    </button>
+    <div class="tb-storage" id="storageStatus">💾</div>
+    <div class="tb-date" id="tbDate"></div>
+  </div>
+</div>
+
+<div id="wf-strip">
+  <div class="wf-step s-qs"><span class="wf-num">1</span>QS – Raises Indent</div>
+  <div class="wf-arr">→</div>
+  <div class="wf-step s-pm"><span class="wf-num">2</span>PM – Approves</div>
+  <div class="wf-arr">→</div>
+  <div class="wf-step s-comm"><span class="wf-num">3</span>Commercial – Raises PO</div>
+  <div class="wf-arr">→</div>
+  <div class="wf-step s-store"><span class="wf-num">4</span>Store – Inward & Issues</div>
+</div>
+
+<div class="app">
+<nav id="sidebar">
+  <div id="role-indicator" class="role-indicator ri-qs">QS Team</div>
+  <div class="nsec">Overview</div>
+  <button class="nbtn active" onclick="go('dashboard')" id="nav-dashboard"><span class="ni">📊</span><span>Dashboard</span></button>
+  <div class="nsec">Procurement</div>
+  <button class="nbtn" onclick="go('indents')" id="nav-indents"><span class="ni">📋</span><span>Indent Requests</span><span class="nbadge nb-a" id="b-ind">0</span></button>
+  <button class="nbtn" onclick="go('po')" id="nav-po" data-roles="COMM,PM,STORE"><span class="ni">📄</span><span>Purchase Orders</span><span class="nbadge nb-t" id="b-po">0</span></button>
+  <button class="nbtn" onclick="go('vendors')" id="nav-vendors" data-roles="COMM"><span class="ni">🏭</span><span>Vendors</span></button>
+  <div class="nsec">Warehouse</div>
+  <button class="nbtn" onclick="go('inward')" id="nav-inward" data-roles="STORE,COMM"><span class="ni">📦</span><span>Inward / GRN</span><span class="nbadge nb-g" id="b-iw">0</span></button>
+  <button class="nbtn" onclick="go('stock')" id="nav-stock"><span class="ni">🗄️</span><span>Stock / Summary</span><span class="nbadge nb-r" id="b-stk">0</span></button>
+  <button class="nbtn" onclick="go('issues')" id="nav-issues" data-roles="STORE,QS,PM"><span class="ni">🚛</span><span>Issues to Site</span></button>
+  <div class="nsec">Reports</div>
+  <button class="nbtn" onclick="go('reports')" id="nav-reports"><span class="ni">📈</span><span>Export / Reports</span></button>
+</nav>
+
+<main>
+
+<!-- ══ DASHBOARD ══ -->
+<div class="page active" id="page-dashboard">
+  <div id="notif-card">
+    <span style="font-size:24px">🔔</span>
+    <p>Enable push notifications to get real-time alerts when indents need your approval, POs are issued, or materials arrive at the store.</p>
+    <button class="btn btn-blue btn-sm" onclick="requestNotifPermission()">Enable Alerts</button>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('notif-card').classList.remove('show')">Later</button>
+  </div>
+  <div class="ph">
+    <div><h1>Dashboard</h1><p>Single point — real-time view for all teams. Data saved to browser storage.</p></div>
+    <div class="ph-acts">
+      <button class="btn btn-amber" onclick="openModal('mIndent')">+ New Indent</button>
+      <button class="btn btn-ghost" onclick="exportAll()">⬇ Export All</button>
+    </div>
+  </div>
+  <div class="sg" id="d-stats"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+    <div class="card"><div class="card-h"><span class="card-t">🔄 Active Pipelines</span></div><div id="d-pipes" style="padding:10px 13px"></div></div>
+    <div class="card"><div class="card-h"><span class="card-t">⚡ My Pending Actions</span></div><div id="d-pending" style="padding:10px 13px"></div></div>
+  </div>
+  <div class="card"><div class="card-h"><span class="card-t">📋 Recent Activity</span></div><div id="d-activity" style="padding:6px 14px"></div></div>
+</div>
+
+<!-- ══ INDENTS ══ -->
+<div class="page" id="page-indents">
+  <div class="ph">
+    <div><h1>Indent Requests (PR)</h1><p><span class="own own-qs">QS</span> raises → <span class="own own-pm">PM</span> approves → <span class="own own-comm">Commercial</span> raises PO</p></div>
+    <div class="ph-acts">
+      <button class="btn btn-amber" onclick="openModal('mIndent')">+ New Indent</button>
+      <button class="btn btn-ghost" onclick="exportCSV('indents')">⬇ Excel</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="tb2">
+      <input class="srch" type="text" placeholder="Search by PL No, Indent No, Item…" oninput="searchTbl('indents',this.value)">
+      <div class="ftabs">
+        <button class="ftab act" onclick="filterTbl('indents','all',this)">All</button>
+        <button class="ftab" onclick="filterTbl('indents','pending',this)">⏳ Pending PM</button>
+        <button class="ftab" onclick="filterTbl('indents','approved',this)">✓ Approved</button>
+        <button class="ftab" onclick="filterTbl('indents','rejected',this)">✗ Rejected</button>
+        <button class="ftab" onclick="filterTbl('indents','completed',this)">✅ Completed</button>
+      </div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th class="c-qs">Indent No</th><th class="c-qs">PR Date</th><th class="c-qs">Project</th>
+        <th class="c-qs">PL No(s)</th><th class="c-qs">Raised By</th>
+        <th class="c-pm">Req. Date (PM)</th><th class="c-comm">PO No (Comm)</th>
+        <th>Pipeline</th><th>Status</th><th>Action</th>
+      </tr></thead>
+      <tbody id="tbl-indents"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══ PO ══ -->
+<div class="page" id="page-po">
+  <div class="ph">
+    <div><h1>Purchase Orders</h1><p><span class="own own-comm">Commercial</span> raises POs after indent is PM-approved</p></div>
+    <div class="ph-acts">
+      <button class="btn btn-teal" onclick="openModal('mPO')">+ Create PO</button>
+      <button class="btn btn-ghost" onclick="exportCSV('po')">⬇ Excel</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="tb2">
+      <input class="srch" type="text" placeholder="Search POs…" oninput="searchTbl('po',this.value)">
+      <div class="ftabs">
+        <button class="ftab act" onclick="filterTbl('po','all',this)">All</button>
+        <button class="ftab" onclick="filterTbl('po','draft',this)">Draft</button>
+        <button class="ftab" onclick="filterTbl('po','sent',this)">Sent</button>
+        <button class="ftab" onclick="filterTbl('po','partial',this)">Partial GRN</button>
+        <button class="ftab" onclick="filterTbl('po','closed',this)">Closed</button>
+      </div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th class="c-comm">PO Number</th><th class="c-comm">Indent Ref</th><th class="c-comm">Vendor</th>
+        <th class="c-comm">PO Date</th><th class="c-comm">PO Value (₹)</th>
+        <th class="c-pm">Req. Date</th><th class="c-store">Inward</th><th>Status</th><th>Action</th>
+      </tr></thead>
+      <tbody id="tbl-po"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══ VENDORS ══ -->
+<div class="page" id="page-vendors">
+  <div class="ph">
+    <div><h1>Vendor Directory</h1><p>Manage suppliers — linked to POs and Inward records</p></div>
+    <div class="ph-acts"><button class="btn btn-amber" onclick="openModal('mVendor')">+ Add Vendor</button></div>
+  </div>
+  <div id="vendor-list"></div>
+</div>
+
+<!-- ══ INWARD ══ -->
+<div class="page" id="page-inward">
+  <div class="ph">
+    <div><h1>Inward / GRN</h1><p><span class="own own-store">Store</span> records material arrivals — updates stock automatically</p></div>
+    <div class="ph-acts">
+      <button class="btn btn-green" onclick="openModal('mInward')">+ Record Inward</button>
+      <button class="btn btn-ghost" onclick="exportCSV('inward')">⬇ Excel</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="tb2"><input class="srch" type="text" placeholder="Search GRN, PL No…" oninput="searchTbl('inward',this.value)"></div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th class="c-store">GRN No.</th><th>PO Ref</th><th>PL No(s)</th><th class="c-store">Supplier</th>
+        <th class="c-store">Invoice Ref</th><th class="c-store">Inward Date</th>
+        <th class="c-store">Received By</th><th>Items</th><th>Discrepancy</th><th>Action</th>
+      </tr></thead>
+      <tbody id="tbl-inward"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══ STOCK ══ -->
+<div class="page" id="page-stock">
+  <div class="ph">
+    <div><h1>Stock / Summary</h1><p>Live stock levels — matches Summary sheet format from civil team template</p></div>
+    <div class="ph-acts"><button class="btn btn-ghost" onclick="exportCSV('stock')">⬇ Excel</button></div>
+  </div>
+  <div class="sg" id="stk-stats"></div>
+  <div class="card">
+    <div class="tb2">
+      <input class="srch" type="text" placeholder="Search materials, codes…" oninput="searchTbl('stock',this.value)">
+      <div class="ftabs">
+        <button class="ftab act" onclick="filterTbl('stock','all',this)">All</button>
+        <button class="ftab" onclick="filterTbl('stock','low',this)">⚠ Low</button>
+        <button class="ftab" onclick="filterTbl('stock','out',this)">✗ Out</button>
+      </div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th>PL No.</th><th>Item Code (MR)</th><th>Material</th><th>Category</th><th>Unit</th>
+        <th class="c-qs">PR Qty</th><th class="c-store">Inward Qty</th>
+        <th>Pending PR Qty</th><th class="c-store">Issue Qty</th><th>Stock Qty</th><th>Level</th>
+      </tr></thead>
+      <tbody id="tbl-stock"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══ ISSUES ══ -->
+<div class="page" id="page-issues">
+  <div class="ph">
+    <div><h1>Issues to Site</h1><p><span class="own own-store">Store</span> issues materials — deducts from stock, tracks by Doc No.</p></div>
+    <div class="ph-acts">
+      <button class="btn btn-amber" onclick="openModal('mIssue')">+ Issue Materials</button>
+      <button class="btn btn-ghost" onclick="exportCSV('issues')">⬇ Excel</button>
+    </div>
+  </div>
+  <div class="card"><div class="tw"><table>
+    <thead><tr>
+      <th>Doc No.</th><th>PL No.</th><th>Indent Ref</th><th>Material Category</th>
+      <th>Item Code</th><th>Issued Material</th><th class="c-store">Issued Qty</th><th>Unit</th>
+      <th>Project</th><th>Location</th><th>Purpose</th><th>Contractor</th>
+      <th class="c-store">Engineer</th><th class="c-store">Date</th>
+    </tr></thead>
+    <tbody id="tbl-issues"></tbody>
+  </table></div></div>
+</div>
+
+<!-- ══ REPORTS ══ -->
+<div class="page" id="page-reports">
+  <div class="ph"><div><h1>Reports & Export</h1><p>Download each register as Excel/CSV — same format as civil team template</p></div></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:13px">
+    <div class="card"><div class="cb" style="text-align:center;padding:22px">
+      <div style="font-size:30px;margin-bottom:8px">📋</div>
+      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:5px">Indent Register (PR Format)</div>
+      <div style="font-size:11.5px;color:var(--text3);margin-bottom:12px">Matches "Indent format" sheet — PL No, MR Code, Items, Qty, Unit, Category</div>
+      <button class="btn btn-amber btn-sm" onclick="exportCSV('indents')">⬇ Download Excel</button>
+    </div></div>
+    <div class="card"><div class="cb" style="text-align:center;padding:22px">
+      <div style="font-size:30px;margin-bottom:8px">📄</div>
+      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:5px">PO Register</div>
+      <div style="font-size:11.5px;color:var(--text3);margin-bottom:12px">Purchase orders with vendor, value & delivery status</div>
+      <button class="btn btn-teal btn-sm" onclick="exportCSV('po')">⬇ Download Excel</button>
+    </div></div>
+    <div class="card"><div class="cb" style="text-align:center;padding:22px">
+      <div style="font-size:30px;margin-bottom:8px">📦</div>
+      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:5px">Inward Register (GRN Format)</div>
+      <div style="font-size:11.5px;color:var(--text3);margin-bottom:12px">Matches "Inward Format" — Supplier, Invoice Ref, Rates, Tax, Total</div>
+      <button class="btn btn-green btn-sm" onclick="exportCSV('inward')">⬇ Download Excel</button>
+    </div></div>
+    <div class="card"><div class="cb" style="text-align:center;padding:22px">
+      <div style="font-size:30px;margin-bottom:8px">🗄️</div>
+      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:5px">Stock Summary</div>
+      <div style="font-size:11.5px;color:var(--text3);margin-bottom:12px">Matches "Summary" sheet — PR Qty, Inward Qty, Pending, Issue Qty, Stock Qty</div>
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV('stock')">⬇ Download Excel</button>
+    </div></div>
+    <div class="card"><div class="cb" style="text-align:center;padding:22px">
+      <div style="font-size:30px;margin-bottom:8px">🚛</div>
+      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:5px">Issue Report</div>
+      <div style="font-size:11.5px;color:var(--text3);margin-bottom:12px">Matches "Issue Report" — Doc No, Category, Code, Contractor, Engineer</div>
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV('issues')">⬇ Download Excel</button>
+    </div></div>
+    <div class="card" style="border-color:var(--amber)"><div class="cb" style="text-align:center;padding:22px">
+      <div style="font-size:30px;margin-bottom:8px">📊</div>
+      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:5px">Full Report</div>
+      <div style="font-size:11.5px;color:var(--text3);margin-bottom:12px">All 5 registers in sequence — complete project data export</div>
+      <button class="btn btn-amber btn-sm" onclick="exportAll()">⬇ Full Report</button>
+    </div></div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- ════ MODALS ════ -->
+
+<!-- INDENT MODAL -->
+<div class="overlay" id="mIndent">
+<div class="modal">
+  <div class="mh"><h2>New Indent Request (PR) <span class="own own-qs">QS Team</span></h2><button class="mc" onclick="closeModal('mIndent')">×</button></div>
+  <div class="mb">
+    <div class="ol">
+      <span class="oli"><span class="old" style="background:var(--amber)"></span>QS fills</span>
+      <span class="oli"><span class="old" style="background:var(--blue)"></span>PM fills on approval</span>
+      <span class="oli"><span class="old" style="background:var(--teal)"></span>Commercial fills</span>
+    </div>
+      <div class="fg">
+      <div class="fgr">
+        <div class="fl">Project<span class="req-mark">*</span> <span class="lo own-qs">QS</span></div>
+        <select id="fi-proj" onchange="validateField('fi-proj');toggleOtherProj(this.value)">
+          <option value="">-- Select Project --</option>
+          <option>[44]Motif Town Houses</option><option>[01]Al Barsha Residences</option>
+          <option>[02]Downtown Commercial Tower</option><option>[03]Marina Heights</option>
+          <option>[05]Greenfield Township</option><option>[06]Smart City Phase 1</option>
+          <option value="__other__">Other (type below)</option>
+        </select>
+        <span class="err-msg" id="err-fi-proj">Please select a project</span>
+      </div>
+      <div class="fgr" id="fi-proj-other-wrap" style="display:none">
+        <div class="fl">Project Name<span class="req-mark">*</span> <span class="lo own-qs">QS</span></div>
+        <input id="fi-proj-other" placeholder="Enter project name" oninput="validateField('fi-proj-other')">
+        <span class="err-msg" id="err-fi-proj-other">Enter project name</span>
+      </div>
+      <div class="fgr">
+        <div class="fl">PR Date<span class="req-mark">*</span> <span class="lo own-qs">QS</span></div>
+        <input id="fi-date" type="date" onchange="validateField('fi-date')">
+        <span class="err-msg" id="err-fi-date">Date is required</span>
+      </div>
+      <div class="fgr">
+        <div class="fl">Indent No<span class="req-mark">*</span> <span class="lo own-qs">QS</span></div>
+        <input id="fi-indno" placeholder="e.g. Indent No:01" oninput="validateField('fi-indno')">
+        <span class="err-msg" id="err-fi-indno">Indent number is required</span>
+      </div>
+      <div class="fgr">
+        <div class="fl">WO / BOQ Ref <span class="lo own-qs">QS</span></div>
+        <input id="fi-wob" placeholder="e.g. WO-2026-041">
+      </div>
+      <div class="fgr">
+        <div class="fl">Required By Date <span class="lo own-pm">PM fills</span></div>
+        <input id="fi-reqdate" type="date" placeholder="Set by PM on approval">
+      </div>
+      <div class="fgr">
+        <div class="fl">PO Number <span class="lo own-comm">Comm fills</span></div>
+        <input id="fi-pono" placeholder="Filled by Commercial team" style="background:var(--bg4);color:var(--text3)">
+      </div>
+    </div>
+
+    <div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-lbl">Material Items — Civil Team Column Order</span><div class="sdiv-line"></div></div>
+    <div class="mat-tbl">
+      <div class="mth">
+        <span class="c-qs-h">PL No.*</span><span class="c-qs-h">Indent No</span><span class="c-qs-h">MR Code</span>
+        <span class="c-qs-h">Item / Material ✏ Manual</span><span class="c-qs-h">Unit</span><span class="c-qs-h">PR Qty</span>
+        <span class="c-comm-h">Rate (₹)</span><span class="c-comm-h">Amount</span>
+        <span class="c-qs-h">Purpose</span><span></span>
+      </div>
+      <div id="indent-rows"></div>
+      <button class="add-mr" onclick="addIR()">+ Add Material Row</button>
+    </div>
+    <div class="fa">
+      <button class="btn btn-ghost" onclick="closeModal('mIndent')">Cancel</button>
+      <button class="btn btn-amber" id="btn-indent-submit" onclick="submitIndent()">Submit Indent →</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- INDENT DETAIL MODAL -->
+<div class="overlay" id="mIndentDetail">
+<div class="modal">
+  <div class="mh"><h2 id="idet-title">Indent Detail</h2><button class="mc" onclick="closeModal('mIndentDetail')">×</button></div>
+  <div class="mb" id="idet-body"></div>
+</div>
+</div>
+
+<!-- PO MODAL -->
+<div class="overlay" id="mPO">
+<div class="modal modal-md">
+  <div class="mh"><h2>Create Purchase Order <span class="own own-comm">Commercial</span></h2><button class="mc" onclick="closeModal('mPO')">×</button></div>
+  <div class="mb">
+    <div class="fg">
+      <div class="fgr full"><div class="fl">Linked Indent (PM-approved)<span class="req-mark">*</span> <span class="lo own-qs">QS</span></div>
+        <select id="po-ind" onchange="fillPOFromIndent(this.value);validateField('po-ind')"><option value="">-- Select Approved Indent --</option></select>
+        <span class="err-msg" id="err-po-ind">Select an approved indent</span></div>
+      <div class="fgr"><div class="fl">PO Number<span class="req-mark">*</span> <span class="lo own-comm">Comm</span></div>
+        <input id="po-no" placeholder="e.g. PO-2026-047" oninput="validateField('po-no')">
+        <span class="err-msg" id="err-po-no">PO Number is required</span></div>
+      <div class="fgr"><div class="fl">Vendor<span class="req-mark">*</span></div>
+        <select id="po-vend" onchange="validateField('po-vend')"><option value="">-- Select Vendor --</option></select>
+        <span class="err-msg" id="err-po-vend">Select a vendor</span></div>
+      <div class="fgr"><div class="fl">PO Date<span class="req-mark">*</span></div><input id="po-date" type="date" onchange="validateField('po-date')">
+        <span class="err-msg" id="err-po-date">Date is required</span></div>
+      <div class="fgr"><div class="fl">Expected Delivery</div><input id="po-del" type="date"></div>
+      <div class="fgr"><div class="fl">Payment Terms</div>
+        <select id="po-pay"><option>30 days credit</option><option>Advance</option><option>On delivery</option><option>45 days credit</option><option>60 days credit</option></select></div>
+      <div class="fgr"><div class="fl">Delivery Terms</div>
+        <select id="po-delt"><option>FOR Site</option><option>Ex-Works</option><option>CIF</option><option>FOB</option></select></div>
+      <div class="fgr"><div class="fl">Delivery Address</div><input id="po-addr" placeholder="Site store address"></div>
+      <div class="fgr"><div class="fl">Total PO Value (₹)<span class="req-mark">*</span></div>
+        <input id="po-val" type="number" min="0" placeholder="0" oninput="validateField('po-val')">
+        <span class="err-msg" id="err-po-val">Enter PO value</span></div>
+      <div class="fgr full"><div class="fl">Notes / Special Instructions</div><textarea id="po-notes" placeholder="Any instructions for vendor…"></textarea></div>
+    </div>
+    <div class="fa">
+      <button class="btn btn-ghost" onclick="closeModal('mPO')">Cancel</button>
+      <button class="btn btn-ghost" onclick="submitPO('draft')">Save Draft</button>
+      <button class="btn btn-teal" onclick="submitPO('sent')">Issue to Vendor →</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- PO DETAIL MODAL -->
+<div class="overlay" id="mPODetail">
+<div class="modal modal-md">
+  <div class="mh"><h2 id="podet-title">PO Details</h2><button class="mc" onclick="closeModal('mPODetail')">×</button></div>
+  <div class="mb" id="podet-body"></div>
+</div>
+</div>
+
+<!-- INWARD MODAL -->
+<div class="overlay" id="mInward">
+<div class="modal modal-md">
+  <div class="mh"><h2>Record Inward (GRN) <span class="own own-store">Store</span></h2><button class="mc" onclick="closeModal('mInward')">×</button></div>
+  <div class="mb">
+    <div class="fg">
+      <div class="fgr"><div class="fl">PO Reference<span class="req-mark">*</span></div>
+        <select id="iw-po" onchange="fillInwardFromPO(this.value);validateField('iw-po')"><option value="">-- Select PO --</option></select>
+        <span class="err-msg" id="err-iw-po">Select a PO</span></div>
+      <div class="fgr"><div class="fl">Inward Date<span class="req-mark">*</span></div>
+        <input id="iw-date" type="date" onchange="validateField('iw-date')">
+        <span class="err-msg" id="err-iw-date">Date is required</span></div>
+      <div class="fgr"><div class="fl">Invoice Ref No.<span class="req-mark">*</span></div>
+        <input id="iw-inv" placeholder="e.g. 8408197265" oninput="validateField('iw-inv')">
+        <span class="err-msg" id="err-iw-inv">Invoice reference is required</span></div>
+      <div class="fgr"><div class="fl">Vehicle No. / DC No.</div><input id="iw-veh" placeholder="e.g. MH-04-ZZ-1234"></div>
+      <div class="fgr"><div class="fl">Received By<span class="req-mark">*</span></div>
+        <input id="iw-recby" placeholder="Storekeeper name" oninput="validateField('iw-recby')">
+        <span class="err-msg" id="err-iw-recby">Enter name of receiver</span></div>
+      <div class="fgr full"><div class="fl">Quality / Remarks</div><textarea id="iw-remarks" placeholder="Damage, short supply, quality issues…" style="min-height:50px"></textarea></div>
+    </div>
+    <div id="iw-items" style="margin-top:14px"></div>
+    <div class="fa">
+      <button class="btn btn-ghost" onclick="closeModal('mInward')">Cancel</button>
+      <button class="btn btn-green" onclick="submitInward()">Save GRN & Update Stock →</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ISSUE MODAL -->
+<div class="overlay" id="mIssue">
+<div class="modal modal-md">
+  <div class="mh"><h2>Issue Materials to Site <span class="own own-store">Store</span></h2><button class="mc" onclick="closeModal('mIssue')">×</button></div>
+  <div class="mb">
+    <div class="fg fg3">
+      <div class="fgr full"><div class="fl">Material (from stock)*</div><select id="iss-mat" onchange="fillIssueFromStock(this.value)"><option value="">-- Select Material --</option></select></div>
+      <div class="fgr"><div class="fl">PL No. (auto)</div><input id="iss-pl" readonly></div>
+      <div class="fgr"><div class="fl">Item Code (auto)</div><input id="iss-code" readonly></div>
+      <div class="fgr"><div class="fl">Material Category</div><input id="iss-cat" readonly></div>
+      <div class="fgr"><div class="fl">Issued Qty<span class="req-mark">*</span> (available: <span id="iss-avail">0</span>)</div>
+        <input id="iss-qty" type="number" min="1" placeholder="0" oninput="validateIssueQty()">
+        <span class="err-msg" id="err-iss-qty">Enter valid quantity</span></div>
+      <div class="fgr"><div class="fl">Unit</div><input id="iss-unit" readonly></div>
+      <div class="fgr"><div class="fl">Doc No.*</div><input id="iss-docno" placeholder="e.g. ISS-2026-001"></div>
+      <div class="fgr"><div class="fl">Issue Date*</div><input id="iss-date" type="date"></div>
+      <div class="fgr full"><div class="fl">Project</div><select id="iss-proj"><option value="">-- Select Project --</option></select></div>
+      <div class="fgr"><div class="fl">Location / Work Area</div><input id="iss-loc" placeholder="e.g. M-69 / Block 4"></div>
+      <div class="fgr"><div class="fl">Purpose</div><input id="iss-purpose" placeholder="e.g. For block work"></div>
+      <div class="fgr"><div class="fl">Contractor Name</div><input id="iss-cont" placeholder="Contractor name"></div>
+      <div class="fgr"><div class="fl">Engineer Name <span class="lo own-store">Store</span></div><input id="iss-eng" placeholder="Engineer name"></div>
+      <div class="fgr"><div class="fl">Indent Ref</div><select id="iss-indent"><option value="">-- Optional --</option></select></div>
+      <div class="fgr full"><div class="fl">Remarks</div><input id="iss-rem" placeholder="Additional remarks"></div>
+    </div>
+    <div class="fa">
+      <button class="btn btn-ghost" onclick="closeModal('mIssue')">Cancel</button>
+      <button class="btn btn-amber" onclick="submitIssue()">Issue & Deduct Stock →</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- VENDOR MODAL -->
+<div class="overlay" id="mVendor">
+<div class="modal modal-sm">
+  <div class="mh"><h2>Add Vendor</h2><button class="mc" onclick="closeModal('mVendor')">×</button></div>
+  <div class="mb">
+    <div class="fg">
+      <div class="fgr full"><div class="fl">Company Name*</div><input id="v-name" placeholder="Supplier company name"></div>
+      <div class="fgr"><div class="fl">Contact Person</div><input id="v-con" placeholder="Name"></div>
+      <div class="fgr"><div class="fl">Phone</div><input id="v-ph" placeholder="+91 XXXXX XXXXX"></div>
+      <div class="fgr"><div class="fl">Category</div>
+        <select id="v-cat">
+          <option>Cement & Concrete</option><option>Steel & Metals</option><option>Sand & Aggregates</option>
+          <option>Electrical</option><option>Plumbing</option><option>Bricks & Blocks</option>
+          <option>Shuttering</option><option>Tiles & Granite</option><option>Timber & Wood</option>
+          <option>Safety Equipment</option><option>Tools & Hardware</option><option>Painting</option>
+          <option>Fuel & Lubricants</option><option>General / Miscellaneous</option>
+        </select></div>
+      <div class="fgr"><div class="fl">GST No.</div><input id="v-gst" placeholder="27XXXXX0000X1ZX"></div>
+      <div class="fgr"><div class="fl">Payment Terms</div>
+        <select id="v-terms"><option>30 days</option><option>45 days</option><option>60 days</option><option>Advance</option><option>On delivery</option></select></div>
+      <div class="fgr full"><div class="fl">Address</div><textarea id="v-addr" style="min-height:50px" placeholder="Full address"></textarea></div>
+    </div>
+    <div class="fa">
+      <button class="btn btn-ghost" onclick="closeModal('mVendor')">Cancel</button>
+      <button class="btn btn-amber" onclick="submitVendor()">Save Vendor</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<div id="bottom-nav">
+  <button class="bn-item active" onclick="go('dashboard');setBottomActive(this)" id="bn-dashboard">
+    <span class="bn-icon">📊</span><span>Home</span>
+  </button>
+  <button class="bn-item" onclick="go('indents');setBottomActive(this)" id="bn-indents" data-roles="QS,PM,COMM,STORE">
+    <span class="bn-icon">📋</span><span>Indents</span>
+    <span class="bn-badge" id="bn-b-ind" style="display:none">0</span>
+  </button>
+  <button class="bn-item" onclick="go('po');setBottomActive(this)" id="bn-po" data-roles="COMM,PM,STORE">
+    <span class="bn-icon">📄</span><span>POs</span>
+    <span class="bn-badge" id="bn-b-po" style="display:none">0</span>
+  </button>
+  <button class="bn-item" onclick="go('stock');setBottomActive(this)" id="bn-stock">
+    <span class="bn-icon">🗄️</span><span>Stock</span>
+    <span class="bn-badge" id="bn-b-stk" style="display:none">0</span>
+  </button>
+  <button class="bn-item" onclick="go('issues');setBottomActive(this)" id="bn-issues" data-roles="STORE,QS,PM">
+    <span class="bn-icon">🚛</span><span>Issues</span>
+  </button>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div id="install-banner">
+  <span style="font-size:28px;flex-shrink:0">📲</span>
+  <p>Install GoodEarth MMS<span>Add to home screen for offline access & faster loading</span></p>
+  <button class="btn btn-ghost btn-sm" onclick="installPWA()">Install</button>
+  <button class="ib-close" onclick="dismissInstall()">✕</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// PWA — MANIFEST (injected dynamically)
+// ══════════════════════════════════════════════
+(function(){
+  const manifest = {
+    name: "GoodEarth MMS",
+    short_name: "GE MMS",
+    description: "GoodEarth Material Management System",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#0E1018",
+    theme_color: "#0E1018",
+    orientation: "any",
+    icons: [
+      {
+        src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%230E1018'/><text y='130' x='20' font-size='110'>🌱</text></svg>",
+        sizes: "192x192", type: "image/svg+xml", purpose: "any maskable"
+      },
+      {
+        src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230E1018'/><text y='370' x='40' font-size='320'>🌱</text></svg>",
+        sizes: "512x512", type: "image/svg+xml", purpose: "any maskable"
+      }
+    ],
+    shortcuts: [
+      { name: "New Indent", short_name: "Indent", description: "Raise a new material indent", url: "./?action=indent" },
+      { name: "Stock View", short_name: "Stock", description: "Check current stock levels", url: "./?page=stock" }
+    ],
+    categories: ["business", "productivity"]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+  document.getElementById('pwaManifest').href = URL.createObjectURL(blob);
+})();
+
+// ══════════════════════════════════════════════
+// SERVICE WORKER — inline via blob
+// ══════════════════════════════════════════════
+const SW_CODE = `
+const CACHE = 'ge-mms-v5';
+const FONTS = [
+  'https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&family=JetBrains+Mono:wght@400;500;600&display=swap'
+];
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => {
+      return c.addAll(FONTS).catch(() => {});
+    })
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', e => {
+  // Cache-first for fonts, network-first for everything else
+  if (e.request.url.includes('fonts.google') || e.request.url.includes('fonts.gstatic')) {
+    e.respondWith(
+      caches.match(e.request).then(r => r || fetch(e.request).then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
+      }))
+    );
+    return;
+  }
+  // For the app itself — cache after first load for offline
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+});
+
+// Push notification handler
+self.addEventListener('push', e => {
+  const data = e.data ? e.data.json() : { title: 'GoodEarth MMS', body: 'You have a new update' };
+  e.waitUntil(
+    self.registration.showNotification(data.title || 'GoodEarth MMS', {
+      body: data.body || '',
+      icon: data.icon || '',
+      badge: data.badge || '',
+      tag: data.tag || 'ge-mms',
+      data: data.url ? { url: data.url } : {},
+      actions: data.actions || [],
+      requireInteraction: data.requireInteraction || false
+    })
+  );
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = e.notification.data?.url || '/';
+  e.waitUntil(clients.matchAll({ type: 'window' }).then(cls => {
+    const existing = cls.find(c => c.url === url && 'focus' in c);
+    if (existing) return existing.focus();
+    return clients.openWindow(url);
+  }));
+});
+`;
+
+// Register service worker via blob URL
+if ('serviceWorker' in navigator) {
+  const swBlob = new Blob([SW_CODE], { type: 'application/javascript' });
+  const swURL = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swURL, { scope: './' })
+    .then(reg => {
+      console.log('GE MMS SW registered', reg.scope);
+      window._swReg = reg;
+    })
+    .catch(err => console.warn('SW reg failed (normal in some browsers):', err));
+}
+
+// ══════════════════════════════════════════════
+// PWA INSTALL PROMPT
+// ══════════════════════════════════════════════
+let _deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  const dismissed = localStorage.getItem('ge_install_dismissed');
+  if (!dismissed) {
+    setTimeout(() => {
+      document.getElementById('install-banner').classList.add('show');
+    }, 3000);
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').classList.remove('show');
+  _deferredPrompt = null;
+  toast('GoodEarth MMS installed! 🎉', 'green');
+});
+
+function installPWA() {
+  if (_deferredPrompt) {
+    // Android / Desktop Chrome
+    _deferredPrompt.prompt();
+    _deferredPrompt.userChoice.then(r => {
+      if (r.outcome === 'accepted') toast('Installing GoodEarth MMS…', 'green');
+      _deferredPrompt = null;
+      document.getElementById('install-banner').classList.remove('show');
+    });
+  } else if (isIOS()) {
+    // iOS — show step-by-step instruction modal
+    showIOSInstallInstructions();
+  } else {
+    toast('Open in Chrome and look for "Add to Home Screen" in browser menu', 'blue');
+  }
+}
+
+function showIOSInstallInstructions() {
+  const existing = document.getElementById('ios-install-modal');
+  if (existing) { existing.classList.add('open'); return; }
+  const div = document.createElement('div');
+  div.id = 'ios-install-modal';
+  div.className = 'overlay open';
+  div.innerHTML = `<div class="modal modal-sm" style="max-width:340px">
+    <div class="mh"><h2>Install on iPhone / iPad</h2><button class="mc" onclick="this.closest('.overlay').classList.remove('open')">×</button></div>
+    <div class="mb">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:12px;background:var(--bg3);border-radius:8px;padding:12px">
+          <span style="font-size:28px;flex-shrink:0">1️⃣</span>
+          <div style="font-size:13px">Open this page in <strong>Safari</strong> (not Chrome)</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--bg3);border-radius:8px;padding:12px">
+          <span style="font-size:28px;flex-shrink:0">2️⃣</span>
+          <div style="font-size:13px">Tap the <strong>Share button</strong> <span style="font-size:16px">⬆</span> at the bottom of Safari</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--bg3);border-radius:8px;padding:12px">
+          <span style="font-size:28px;flex-shrink:0">3️⃣</span>
+          <div style="font-size:13px">Scroll down and tap <strong>"Add to Home Screen"</strong></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--bg3);border-radius:8px;padding:12px">
+          <span style="font-size:28px;flex-shrink:0">4️⃣</span>
+          <div style="font-size:13px">Tap <strong>Add</strong> — GoodEarth MMS appears on your home screen</div>
+        </div>
+        <div style="font-size:11.5px;color:var(--text3);background:var(--amber-lt);border-radius:7px;padding:10px;border:1px solid rgba(245,158,11,.2)">
+          ⚠ Push notifications on iOS require iOS 16.4 or later and must be enabled after installing.
+        </div>
+      </div>
+      <div class="fa"><button class="btn btn-amber" onclick="this.closest('.overlay').classList.remove('open')">Got it</button></div>
+    </div>
+  </div>`;
+  document.body.appendChild(div);
+  div.addEventListener('click', e => { if(e.target===div) div.classList.remove('open'); });
+}
+
+function dismissInstall() {
+  document.getElementById('install-banner').classList.remove('show');
+  localStorage.setItem('ge_install_dismissed', '1');
+}
+
+// Detect iOS for custom install instructions
+function isIOS() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+}
+function isInStandaloneMode() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+}
+
+// ══════════════════════════════════════════════
+// PUSH NOTIFICATIONS
+// ══════════════════════════════════════════════
+async function requestNotifPermission() {
+  if (!('Notification' in window)) {
+    toast('Notifications not supported in this browser', 'rose');
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    toast('Notifications already enabled ✓', 'green');
+    sendTestNotification();
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    toast('Notifications blocked — enable in browser settings', 'rose');
+    return;
+  }
+  const result = await Notification.requestPermission();
+  if (result === 'granted') {
+    document.getElementById('notif-card').classList.remove('show');
+    document.getElementById('notif-btn').style.color = 'var(--green)';
+    toast('Notifications enabled! ✓', 'green');
+    sendTestNotification();
+    localStorage.setItem('ge_notif', 'granted');
+  } else {
+    toast('Notification permission denied', 'rose');
+  }
+}
+
+function sendTestNotification() {
+  if (Notification.permission !== 'granted') return;
+  try {
+    if (window._swReg) {
+      window._swReg.showNotification('GoodEarth MMS', {
+        body: 'Notifications are working! You\'ll be alerted for approvals & updates.',
+        icon: '',
+        tag: 'ge-test'
+      });
+    } else {
+      new Notification('GoodEarth MMS', {
+        body: 'Notifications are working!'
+      });
+    }
+  } catch(e) {}
+}
+
+// Send a notification when an indent needs PM approval
+function notifyRoleAction(title, body, role) {
+  if (Notification.permission !== 'granted') return;
+  // In a real backend setup you'd send to specific role's device
+  // For demo: notify if the current active role matches
+  try {
+    const tag = 'ge-action-' + Date.now();
+    if (window._swReg) {
+      window._swReg.showNotification(title, { body, tag });
+    } else {
+      new Notification(title, { body });
+    }
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════
+// MOBILE BOTTOM NAV
+// ══════════════════════════════════════════════
+function initBottomNav() {
+  const isMobile = window.innerWidth <= 600;
+  const bn = document.getElementById('bottom-nav');
+  if (isMobile) bn.classList.add('visible');
+  else bn.classList.remove('visible');
+}
+
+function setBottomActive(el) {
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function syncBottomNav(page) {
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  const match = document.getElementById('bn-' + page);
+  if (match) match.classList.add('active');
+}
+
+window.addEventListener('resize', initBottomNav);
+</script>
+// ═══════════════════════════════════════════════════════
+// CONSTANTS — FROM CIVIL TEAM EXCEL
+// ═══════════════════════════════════════════════════════
+const MAT_CATS = [
+  '[01]Civil Materials','[02]Structural Steel','[03]Electrical Materials','[04]Equipments',
+  '[05]Hardware Materials','[06]Mechanical Materials','[07]Painting Materials','[08]Plumbing Materials',
+  '[09]Safety Materials','[10]Shuttering Materials','[11]Stationery Materials','[12]Tiles & Granite Materials',
+  '[13]Tools','[14]Wood Work Materials','[15]Fuel ,Lubricants and Chemicals',
+  '[16]Landscape Materials','[17]Miscelleneous Materials'
+];
+
+const PROJECTS = [
+  '[44]Motif Town Houses','[01]Al Barsha Residences','[02]Downtown Commercial Tower',
+  '[03]Marina Heights','[05]Greenfield Township','[06]Smart City Phase 1'
+];
+
+const UNITS = ['Bags','MT','Tons','Kg','Pcs','Nos','Rmt','Sqm','Cum','Ltr','Sets','Rolls','Sheets','Pairs'];
+const STAGES = {QS:'QS Team',PM:'Project Manager',COMM:'Commercial',STORE:'Store Team'};
+const FLOW = ['QS','PM','COMM','STORE'];
+const TODAY = new Date().toISOString().split('T')[0];
+
+// ═══════════════════════════════════════════════════════
+// LOCAL STORAGE — PERSISTENCE
+// ═══════════════════════════════════════════════════════
+const LS_KEY = 'sitemate_v4_data';
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ const d=JSON.parse(raw); return d; }
+  } catch(e){ console.warn('Load failed',e); }
+  return null;
+}
+
+function saveData(){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({vendors,indents,pos,inwards,stock,issues,_saved:new Date().toISOString()}));
+    document.getElementById('storageStatus').textContent = '💾 Saved ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  } catch(e){ console.warn('Save failed',e); }
+}
+
+// ═══════════════════════════════════════════════════════
+// SEED / LOAD DATA
+// ═══════════════════════════════════════════════════════
+let vendors, indents, pos, inwards, stock, issues;
+
+function initData(){
+  const saved = loadData();
+  if(saved){
+    vendors = saved.vendors || [];
+    indents = saved.indents || [];
+    pos = saved.pos || [];
+    inwards = saved.inwards || [];
+    stock = saved.stock || [];
+    issues = saved.issues || [];
+    return;
+  }
+  // Fresh seed data matching civil team template
+  vendors = [
+    {id:'V001',name:'Ultra Tech Cement Limited',con:'Rajesh Sharma',ph:'+91 98765 43210',cat:'Cement & Concrete',gst:'27ABCDE1234F1Z5',terms:'30 days',addr:'Plot 12, MIDC, Thane'},
+    {id:'V002',name:'BhumiSteel Traders Pvt Ltd',con:'Amit Verma',ph:'+91 90123 45678',cat:'Steel & Metals',gst:'27FGHIJ5678G1Z6',terms:'45 days',addr:'MIDC Phase 2, Navi Mumbai'},
+    {id:'V003',name:'Lakshmi Electricals',con:'Suresh Kumar',ph:'+91 87654 32109',cat:'Electrical',gst:'27KLMNO9012H1Z7',terms:'On delivery',addr:'Shop 4, Dadar'},
+  ];
+  indents = [
+    {
+      id:'IND-001',indNo:'Indent No:01',proj:'[44]Motif Town Houses',wob:'WO-2026-035',
+      raisedBy:'QS',date:'2026-04-08',reqDate:'2026-04-18',poNo:'PO-2026-041',
+      items:[
+        {pl:'PL-01',indentNo:'Indent No:01',mrCode:'CVL/A/133',item:'Cement OPC 43 Grade',unit:'Bags',prQty:1000,rate:225,amount:225000,purpose:'Foundation Works',revision:'R0',addSpec:'Footing Concrete',category:'[01]Civil Materials'},
+        {pl:'PL-02',indentNo:'Indent No:01',mrCode:'AGG/A/001',item:'River Sand (Fine)',unit:'MT',prQty:50,rate:1200,amount:60000,purpose:'Foundation Works',revision:'R0',addSpec:'',category:'[01]Civil Materials'},
+        {pl:'PL-03',indentNo:'Indent No:01',mrCode:'AGG/A/002',item:'20mm Crushed Aggregate',unit:'MT',prQty:40,rate:1200,amount:48000,purpose:'Foundation Works',revision:'R0',addSpec:'',category:'[01]Civil Materials'},
+      ],
+      stage:'COMM',status:'approved',
+      history:[
+        {role:'QS',action:'Raised',note:'Indent submitted',date:'2026-04-08'},
+        {role:'PM',action:'Approved',note:'Verified vs BOQ. Req by 18 Apr.',date:'2026-04-09'},
+      ]
+    },
+    {
+      id:'IND-002',indNo:'Indent No:02',proj:'[44]Motif Town Houses',wob:'WO-2026-039',
+      raisedBy:'QS',date:'2026-04-10',reqDate:'',poNo:'',
+      items:[
+        {pl:'PL-04',indentNo:'Indent No:02',mrCode:'ELE/A/001',item:'4mm Copper Wire (100m roll)',unit:'Rolls',prQty:20,rate:1900,amount:38000,purpose:'Level 5 Electrical',revision:'R0',addSpec:'IS standard',category:'[03]Electrical Materials'},
+        {pl:'PL-05',indentNo:'Indent No:02',mrCode:'ELE/A/002',item:'MS Conduit 25mm',unit:'Pcs',prQty:150,rate:80,amount:12000,purpose:'Level 5 Electrical',revision:'R0',addSpec:'',category:'[03]Electrical Materials'},
+      ],
+      stage:'PM',status:'pending',
+      history:[{role:'QS',action:'Raised',note:'Indent submitted',date:'2026-04-10'}]
+    },
+    {
+      id:'IND-003',indNo:'Indent No:00',proj:'[44]Motif Town Houses',wob:'WO-2026-031',
+      raisedBy:'QS',date:'2026-04-05',reqDate:'2026-04-28',poNo:'PO-2026-038',
+      items:[
+        {pl:'PL-06',indentNo:'Indent No:00',mrCode:'PLB/A/001',item:'UPVC Pipe 110mm',unit:'Pcs',prQty:50,rate:500,amount:25000,purpose:'Toilet Block Drainage',revision:'R0',addSpec:'',category:'[08]Plumbing Materials'},
+        {pl:'PL-07',indentNo:'Indent No:00',mrCode:'PLB/A/002',item:'PVC Elbow 90°',unit:'Pcs',prQty:30,rate:150,amount:4500,purpose:'Toilet Block Drainage',revision:'R0',addSpec:'',category:'[08]Plumbing Materials'},
+      ],
+      stage:'STORE',status:'completed',
+      history:[
+        {role:'QS',action:'Raised',note:'Indent submitted',date:'2026-04-05'},
+        {role:'PM',action:'Approved',note:'Approved. Required by 28 Apr.',date:'2026-04-06'},
+        {role:'COMM',action:'PO Raised',note:'PO-2026-038 issued to Ultra Tech',date:'2026-04-07'},
+        {role:'STORE',action:'Inward Complete',note:'GRN-001 done. Stock updated.',date:'2026-04-10'},
+      ]
+    },
+  ];
+  pos = [
+    {id:'PO-2026-041',indRef:'IND-001',vendId:'V001',date:'2026-04-09',delDate:'2026-04-15',addr:'Site Store, Plot 5',payTerms:'30 days credit',delTerms:'FOR Site',notes:'Urgent',value:333000,status:'sent',iwStatus:'Awaiting'},
+    {id:'PO-2026-038',indRef:'IND-003',vendId:'V001',date:'2026-04-07',delDate:'2026-04-10',addr:'Site Store, Plot 5',payTerms:'On delivery',delTerms:'FOR Site',notes:'',value:29500,status:'closed',iwStatus:'Full GRN'},
+  ];
+  inwards = [
+    {id:'GRN-001',poRef:'PO-2026-038',vendId:'V001',date:'2026-04-10',invRef:'8408197265',vehicle:'MH-04-ZZ-5678',recBy:'Mohan (Storekeeper)',remarks:'All received in good condition.',
+    items:[
+      {pl:'PL-06',name:'UPVC Pipe 110mm',poQty:50,recQty:50,unit:'Pcs',basicRate:500,taxPct:0.18,transport:0},
+      {pl:'PL-07',name:'PVC Elbow 90°',poQty:30,recQty:28,unit:'Pcs',basicRate:150,taxPct:0.18,transport:0},
+    ]},
+  ];
+  stock = [
+    {pl:'PL-01',code:'CVL/A/133',name:'Cement OPC 43 Grade',cat:'[01]Civil Materials',unit:'Bags',prQty:1000,inwardQty:0,issueQty:0},
+    {pl:'PL-02',code:'AGG/A/001',name:'River Sand (Fine)',cat:'[01]Civil Materials',unit:'MT',prQty:50,inwardQty:0,issueQty:0},
+    {pl:'PL-03',code:'AGG/A/002',name:'20mm Crushed Aggregate',cat:'[01]Civil Materials',unit:'MT',prQty:40,inwardQty:0,issueQty:0},
+    {pl:'PL-04',code:'ELE/A/001',name:'4mm Copper Wire (100m roll)',cat:'[03]Electrical Materials',unit:'Rolls',prQty:20,inwardQty:0,issueQty:0},
+    {pl:'PL-05',code:'ELE/A/002',name:'MS Conduit 25mm',cat:'[03]Electrical Materials',unit:'Pcs',prQty:150,inwardQty:0,issueQty:0},
+    {pl:'PL-06',code:'PLB/A/001',name:'UPVC Pipe 110mm',cat:'[08]Plumbing Materials',unit:'Pcs',prQty:50,inwardQty:50,issueQty:3},
+    {pl:'PL-07',code:'PLB/A/002',name:'PVC Elbow 90°',cat:'[08]Plumbing Materials',unit:'Pcs',prQty:30,inwardQty:28,issueQty:2},
+  ];
+  issues = [
+    {id:'ISS-001',docNo:'2028',pl:'PL-06',indRef:'IND-003',cat:'[08]Plumbing Materials',code:'PLB/A/001',material:'UPVC Pipe 110mm',qty:3,unit:'Pcs',proj:'[44]Motif Town Houses',loc:'M-69',purpose:'For block work',contractor:'Azad Alam',engineer:'Sushwin',date:'2026-04-11',remarks:''},
+    {id:'ISS-002',docNo:'2029',pl:'PL-07',indRef:'IND-003',cat:'[08]Plumbing Materials',code:'PLB/A/002',material:'PVC Elbow 90°',qty:2,unit:'Pcs',proj:'[44]Motif Town Houses',loc:'M-69',purpose:'For drainage',contractor:'Azad Alam',engineer:'Sushwin',date:'2026-04-12',remarks:''},
+  ];
+  saveData();
+}
+
+// ═══════════════════════════════════════════════════════
+// ROLE & NAV
+// ═══════════════════════════════════════════════════════
+let role = 'QS';
+let filters = {indents:'all',po:'all',stock:'all'};
+let searches = {indents:'',po:'',inward:'',stock:''};
+let irIds = [], irSeq = 0, plSeq = 10;
+
+function changeRole(r){
+  role=r;
+  applyRoleNav();
+  renderAll();
+  toast('Role: '+STAGES[r],'amber');
+}
+
+// ── ROLE-BASED NAV VISIBILITY ──
+function applyRoleNav(){
+  // Update role indicator badge in sidebar
+  const ri = document.getElementById('role-indicator');
+  if(ri){
+    ri.textContent = STAGES[role];
+    ri.className = 'role-indicator ri-'+role.toLowerCase();
+  }
+
+  // Role permission map — what each role can see
+  const ROLE_PAGES = {
+    QS:    ['dashboard','indents','stock','issues','reports'],
+    PM:    ['dashboard','indents','po','stock','issues','reports'],
+    COMM:  ['dashboard','indents','po','vendors','inward','stock','reports'],
+    STORE: ['dashboard','indents','po','inward','stock','issues','reports'],
+  };
+  const allowed = ROLE_PAGES[role] || [];
+
+  // Show/hide sidebar nav buttons based on data-roles attribute
+  document.querySelectorAll('#sidebar .nbtn[data-roles]').forEach(btn => {
+    const roles = btn.getAttribute('data-roles').split(',');
+    btn.setAttribute('data-role-hide', (!roles.includes(role)).toString());
+  });
+
+  // Show/hide bottom nav items
+  document.querySelectorAll('#bottom-nav .bn-item[data-roles]').forEach(btn => {
+    const roles = btn.getAttribute('data-roles').split(',');
+    btn.setAttribute('data-role-hide', (!roles.includes(role)).toString());
+  });
+
+  // Show notif card if first time and permission not set
+  const notifPerm = localStorage.getItem('ge_notif');
+  if(!notifPerm && Notification && Notification.permission === 'default'){
+    setTimeout(()=>document.getElementById('notif-card').classList.add('show'), 1500);
+  }
+
+  // Update notification bell color
+  if(Notification && Notification.permission === 'granted'){
+    document.getElementById('notif-btn').style.color = 'var(--green)';
+  }
+}
+
+function go(p){
+  // Role-based page guard
+  const ROLE_PAGES = {
+    QS:    ['dashboard','indents','stock','issues','reports'],
+    PM:    ['dashboard','indents','po','stock','issues','reports'],
+    COMM:  ['dashboard','indents','po','vendors','inward','stock','reports'],
+    STORE: ['dashboard','indents','po','inward','stock','issues','reports'],
+  };
+  const allowed = ROLE_PAGES[role] || [];
+  if(!allowed.includes(p)){
+    toast(`${STAGES[role]} does not have access to this section`,'rose');
+    p = 'dashboard'; // redirect to safe page
+  }
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nbtn').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  const navEl = document.getElementById('nav-'+p);
+  if(navEl) navEl.classList.add('active');
+  syncBottomNav(p);
+  render(p);
+}
+
+function render(p){
+  if(p==='dashboard') renderDash();
+  if(p==='indents') renderIndents();
+  if(p==='po') renderPO();
+  if(p==='vendors') renderVendors();
+  if(p==='inward') renderInward();
+  if(p==='stock') renderStock();
+  if(p==='issues') renderIssues();
+  updateBadges();
+}
+function renderAll(){ render(activePage()); updateBadges(); }
+function activePage(){ return document.querySelector('.page.active')?.id.replace('page-','')||'dashboard'; }
+
+function updateBadges(){
+  const pi = indents.filter(i=>i.status==='pending').length;
+  const pp = pos.filter(p=>p.status==='draft'||p.status==='sent').length;
+  const piw = inwards.length;
+  const ls = stock.filter(s=>stockQty(s)<=0).length;
+  document.getElementById('b-ind').textContent=pi;
+  document.getElementById('b-po').textContent=pp;
+  document.getElementById('b-iw').textContent=piw;
+  document.getElementById('b-stk').textContent=ls;
+  // Bottom nav badges
+  const bnInd=document.getElementById('bn-b-ind');
+  const bnPo=document.getElementById('bn-b-po');
+  const bnStk=document.getElementById('bn-b-stk');
+  if(bnInd){bnInd.textContent=pi;bnInd.style.display=pi>0?'block':'none';}
+  if(bnPo){bnPo.textContent=pp;bnPo.style.display=pp>0?'block':'none';}
+  if(bnStk){bnStk.textContent=ls;bnStk.style.display=ls>0?'block':'none';}
+  // Notification bell count
+  const nc=document.getElementById('notif-count');
+  if(nc){const total=pi+pp;nc.textContent=total;nc.style.display=total>0?'block':'none';}
+}
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function stockQty(s){ return (s.inwardQty||0)-(s.issueQty||0); }
+
+function sChip(s){
+  const m={pending:'c-pend',approved:'c-appr',rejected:'c-rej',completed:'c-done',sent:'c-sent',draft:'c-draft',closed:'c-done',partial:'c-part'};
+  const lbl={pending:'Pending',approved:'Approved',rejected:'Rejected',completed:'Completed',sent:'Sent',draft:'Draft',closed:'Closed',partial:'Partial GRN'};
+  return `<span class="chip ${m[s]||'c-draft'}"><span class="cd"></span>${lbl[s]||s}</span>`;
+}
+
+function pipeHtml(indent, compact=false){
+  const si=FLOW.indexOf(indent.stage);
+  return FLOW.map((s,idx)=>{
+    const done=(indent.status==='completed')||idx<si;
+    const cur=idx===si && indent.status!=='completed' && indent.status!=='rejected';
+    const cls=done?'pfn-done':cur?'pfn-cur':'pfn-wait';
+    const nm={QS:'QS',PM:'PM',COMM:'Comm',STORE:'Store'}[s];
+    return `<div class="pfn ${cls}"><span class="pfl">${nm}</span>${!compact?`<span class="pfname">${STAGES[s].split(' ')[0]}</span>`:''}</div>${idx<3?'<div class="pfa">›</div>':''}`;
+  }).join('');
+}
+
+function colorMap(role){ return {QS:'var(--amber)',PM:'var(--blue)',COMM:'var(--teal)',STORE:'var(--green)'}[role]||'var(--text3)'; }
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+function renderDash(){
+  const totalPO = pos.length, totalIW = inwards.length;
+  const pendPO = pos.filter(p=>p.status==='sent'&&p.iwStatus==='Awaiting').length;
+  const pendInd = indents.filter(i=>i.status==='pending').length;
+  const lowStk = stock.filter(s=>stockQty(s)<=0).length;
+  const poVal = pos.reduce((a,p)=>a+(p.value||0),0);
+
+  document.getElementById('d-stats').innerHTML=`
+    <div class="stat s-a"><div class="stat-v">${indents.length}</div><div class="stat-l">Total Indents</div></div>
+    <div class="stat s-t"><div class="stat-v">${totalPO}</div><div class="stat-l">Total POs</div></div>
+    <div class="stat s-g"><div class="stat-v">${totalIW}</div><div class="stat-l">Total Inward</div></div>
+    <div class="stat s-r"><div class="stat-v">${pendPO}</div><div class="stat-l">Pending POs (Awaiting Delivery)</div></div>
+    <div class="stat s-b"><div class="stat-v">${pendInd}</div><div class="stat-l">Pending PM Approval</div></div>
+    <div class="stat s-p"><div class="stat-v">₹${(poVal/100000).toFixed(1)}L</div><div class="stat-l">Total PO Value</div></div>
+  `;
+
+  const active=indents.filter(i=>i.status==='pending'||i.status==='approved');
+  document.getElementById('d-pipes').innerHTML=active.length?active.map(i=>`
+    <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--bg3)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:6px;flex-wrap:wrap">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber)">${i.indNo}</span>
+        <span style="font-size:11.5px;color:var(--text2)">${i.proj}</span>
+        <button class="btn btn-ghost btn-xs" onclick="openIndentDetail('${i.id}')">View</button>
+      </div>
+      <div class="pf">${pipeHtml(i,true)}</div>
+    </div>`).join(''):'<div style="text-align:center;padding:18px;color:var(--text3);font-size:12px">✅ No active pipelines</div>';
+
+  let actions=[];
+  if(role==='PM') actions=indents.filter(i=>i.status==='pending'&&i.stage==='PM');
+  else if(role==='COMM') actions=indents.filter(i=>i.status==='approved'&&i.stage==='COMM'&&!i.poNo);
+  else if(role==='STORE') actions=pos.filter(p=>p.status==='sent'&&p.iwStatus==='Awaiting');
+  document.getElementById('d-pending').innerHTML=actions.length?actions.map(a=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bg3);gap:6px;flex-wrap:wrap">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber)">${a.id||a.indNo}</div>
+        <div style="font-size:11.5px;color:var(--text2);margin-top:2px">${a.proj||('PO: '+a.id)}</div>
+      </div>
+      <div style="display:flex;gap:5px">
+        ${role==='PM'?`<button class="btn btn-green btn-xs" onclick="approveIndent('${a.id}','')">✓ Approve</button><button class="btn btn-rose btn-xs" onclick="rejectIndent('${a.id}','')">✗ Reject</button>`:
+          role==='COMM'?`<button class="btn btn-teal btn-xs" onclick="openModal('mPO')">Create PO</button>`:
+          `<button class="btn btn-green btn-xs" onclick="openModal('mInward')">Record Inward</button>`}
+      </div>
+    </div>`).join(''):`<div style="text-align:center;padding:18px;color:var(--text3);font-size:12px">✅ No pending actions for ${STAGES[role]}</div>`;
+
+  let acts=[];
+  indents.forEach(i=>i.history.forEach(h=>acts.push({...h,ref:i.indNo,desc:i.proj})));
+  inwards.forEach(g=>acts.push({role:'STORE',action:'Inward Recorded',note:g.id+' | Invoice: '+g.invRef,date:g.date,ref:g.poRef,desc:'GRN'}));
+  acts.sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('d-activity').innerHTML=acts.slice(0,10).map(a=>{
+    const c=colorMap(a.role);
+    return `<div class="log-item"><div class="log-ico" style="background:${c}20;color:${c}">${a.role[0]}</div>
+      <div><div class="log-t" style="color:${c}">${a.action} <span style="color:var(--text2);font-weight:400">— ${a.desc}</span></div>
+      <div class="log-m">${a.note} · ${a.date} · ${STAGES[a.role]||a.role}</div></div></div>`;
+  }).join('')||'<div style="text-align:center;padding:16px;color:var(--text3)">No activity yet</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+// INDENTS TABLE
+// ═══════════════════════════════════════════════════════
+function renderIndents(){
+  let data=[...indents].reverse();
+  if(filters.indents!=='all') data=data.filter(i=>i.status===filters.indents);
+  if(searches.indents) data=data.filter(i=>i.indNo.toLowerCase().includes(searches.indents)||i.proj.toLowerCase().includes(searches.indents)||i.items.some(m=>m.pl.toLowerCase().includes(searches.indents)||m.item.toLowerCase().includes(searches.indents)));
+  document.getElementById('tbl-indents').innerHTML=data.length?data.map(i=>{
+    const pls=i.items.map(m=>`<span class="pl-tag">${m.pl}</span>`).join(' ');
+    return `<tr>
+      <td class="mono">${i.indNo}</td><td class="mono">${i.date}</td>
+      <td style="font-size:12px">${i.proj}</td><td style="min-width:120px">${pls}</td>
+      <td><span style="font-size:11px;font-weight:700;color:var(--amber)">QS</span></td>
+      <td class="mono" style="color:var(--blue)">${i.reqDate||'—'}</td>
+      <td class="mono" style="color:var(--teal)">${i.poNo||'—'}</td>
+      <td><div class="pf" style="gap:2px">${pipeHtml(i,true)}</div></td>
+      <td>${sChip(i.status)}</td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-xs" onclick="openIndentDetail('${i.id}')">View</button>
+        ${i.status==='pending'&&i.stage===role?`<button class="btn btn-green btn-xs" onclick="approveIndent('${i.id}','')">✓</button><button class="btn btn-rose btn-xs" onclick="rejectIndent('${i.id}','')">✗</button>`:''}
+      </div></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="10" style="text-align:center;padding:38px;color:var(--text3)">No indents found</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════
+// PO TABLE
+// ═══════════════════════════════════════════════════════
+function renderPO(){
+  let data=[...pos].reverse();
+  if(filters.po!=='all') data=data.filter(p=>p.status===filters.po);
+  if(searches.po) data=data.filter(p=>p.id.toLowerCase().includes(searches.po)||(findVend(p.vendId)?.name||'').toLowerCase().includes(searches.po));
+  document.getElementById('tbl-po').innerHTML=data.length?data.map(p=>{
+    const v=findVend(p.vendId);
+    const ind=indents.find(i=>i.id===p.indRef);
+    const iw=p.iwStatus||'Awaiting';
+    const iwCls=iw==='Full GRN'?'c-appr':iw==='Partial GRN'?'c-part':'c-pend';
+    return `<tr>
+      <td class="mono" style="color:var(--teal);font-weight:700">${p.id}</td>
+      <td class="mono">${p.indRef||'—'}</td><td style="font-size:12px">${v?.name||'—'}</td>
+      <td class="mono">${p.date}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:700">₹${(p.value||0).toLocaleString('en-IN')}</td>
+      <td class="mono" style="color:var(--blue)">${ind?.reqDate||'—'}</td>
+      <td><span class="chip ${iwCls}"><span class="cd"></span>${iw}</span></td>
+      <td>${sChip(p.status)}</td>
+      <td><button class="btn btn-ghost btn-xs" onclick="openPODetail('${p.id}')">View</button></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="9" style="text-align:center;padding:38px;color:var(--text3)">No POs found</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════
+// VENDORS
+// ═══════════════════════════════════════════════════════
+function renderVendors(){
+  document.getElementById('vendor-list').innerHTML=vendors.length?vendors.map(v=>`
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:700;font-size:13.5px;color:var(--white)">${v.name}</div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:2px">${v.cat} · ${v.con} · ${v.ph} · GST: ${v.gst}</div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:1px">Terms: ${v.terms} · ${v.addr}</div>
+      </div>
+      <span class="mono" style="background:var(--bg4);padding:3px 8px;border-radius:4px">${v.id}</span>
+    </div>`).join(''):'<div style="text-align:center;padding:38px;color:var(--text3)">No vendors added yet</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+// INWARD TABLE
+// ═══════════════════════════════════════════════════════
+function renderInward(){
+  let data=[...inwards].reverse();
+  if(searches.inward) data=data.filter(g=>g.id.toLowerCase().includes(searches.inward)||g.poRef.toLowerCase().includes(searches.inward)||g.items.some(i=>i.pl.toLowerCase().includes(searches.inward)));
+  document.getElementById('tbl-inward').innerHTML=data.length?data.map(g=>{
+    const v=findVend(g.vendId);
+    const disc=g.items.some(i=>i.recQty<i.poQty);
+    const pls=[...new Set(g.items.map(i=>i.pl))].map(p=>`<span class="pl-tag">${p}</span>`).join(' ');
+    return `<tr>
+      <td class="mono">${g.id}</td><td class="mono">${g.poRef}</td><td>${pls}</td>
+      <td style="font-size:12px">${v?.name||'—'}</td>
+      <td class="mono">${g.invRef||'—'}</td><td class="mono">${g.date}</td>
+      <td>${g.recBy}</td><td>${g.items.length} item(s)</td>
+      <td>${disc?'<span class="chip c-part"><span class="cd"></span>Short</span>':'<span class="chip c-appr"><span class="cd"></span>Full</span>'}</td>
+      <td><button class="btn btn-ghost btn-xs" onclick="openGRNDetail('${g.id}')">View</button></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="10" style="text-align:center;padding:38px;color:var(--text3)">No inward records yet</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════
+// STOCK TABLE — Summary sheet format
+// ═══════════════════════════════════════════════════════
+function renderStock(){
+  let data=[...stock];
+  const low=data.filter(s=>{ const sq=stockQty(s); return sq>0&&sq<=(s.prQty*0.1); }).length;
+  const out=data.filter(s=>stockQty(s)<=0&&s.inwardQty>0).length;
+  document.getElementById('stk-stats').innerHTML=`
+    <div class="stat s-b"><div class="stat-v">${stock.length}</div><div class="stat-l">Materials Tracked</div></div>
+    <div class="stat s-g"><div class="stat-v">${stock.filter(s=>stockQty(s)>0).length}</div><div class="stat-l">In Stock</div></div>
+    <div class="stat s-a"><div class="stat-v">${low}</div><div class="stat-l">Low Stock</div></div>
+    <div class="stat s-r"><div class="stat-v">${out}</div><div class="stat-l">Out of Stock</div></div>
+  `;
+  if(filters.stock==='low') data=data.filter(s=>{ const sq=stockQty(s); return sq>0&&sq<=(s.prQty*0.1); });
+  if(filters.stock==='out') data=data.filter(s=>stockQty(s)<=0);
+  if(searches.stock) data=data.filter(s=>s.name.toLowerCase().includes(searches.stock)||s.pl.toLowerCase().includes(searches.stock)||s.code.toLowerCase().includes(searches.stock));
+  document.getElementById('tbl-stock').innerHTML=data.length?data.map(s=>{
+    const sq=stockQty(s);
+    const pending=Math.max(0,(s.prQty||0)-(s.inwardQty||0));
+    const pct=s.inwardQty>0?Math.min(100,Math.round((sq/Math.max(s.inwardQty,1))*100)):0;
+    const clr=sq<=0?'var(--rose)':sq<=(s.prQty*0.1)?'var(--amber)':'var(--green)';
+    const stklbl=sq<=0&&s.inwardQty>0?'<span class="chip c-rej" style="font-size:9.5px;padding:1px 5px">Out</span>':sq<=(s.prQty*0.1)&&sq>0?'<span class="chip c-pend" style="font-size:9.5px;padding:1px 5px">Low</span>':'';
+    return `<tr>
+      <td><span class="pl-tag">${s.pl}</span></td>
+      <td class="mono">${s.code}</td>
+      <td style="font-weight:500">${s.name} ${stklbl}</td>
+      <td><span style="font-size:10.5px;background:var(--bg4);color:var(--text3);padding:2px 6px;border-radius:3px">${s.cat.split(']')[1]||s.cat}</span></td>
+      <td>${s.unit}</td>
+      <td class="sum-val">${s.prQty||0}</td>
+      <td class="sum-val sum-inward">${s.inwardQty||0}</td>
+      <td class="sum-val sum-pending">${pending}</td>
+      <td class="sum-val sum-issued">${s.issueQty||0}</td>
+      <td class="sum-val" style="color:${clr};font-weight:700">${sq}</td>
+      <td style="min-width:90px"><div style="font-size:10px;color:var(--text3);margin-bottom:2px">${pct}%</div><div class="sbar-w"><div class="sbar" style="width:${pct}%;background:${clr}"></div></div></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="11" style="text-align:center;padding:38px;color:var(--text3)">No stock data</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════
+// ISSUES TABLE — Issue Report format
+// ═══════════════════════════════════════════════════════
+function renderIssues(){
+  document.getElementById('tbl-issues').innerHTML=[...issues].reverse().length?[...issues].reverse().map(i=>`
+    <tr>
+      <td class="mono">${i.docNo||i.id}</td><td><span class="pl-tag">${i.pl||'—'}</span></td>
+      <td class="mono">${i.indRef||'—'}</td>
+      <td style="font-size:11px">${i.cat||'—'}</td>
+      <td class="mono">${i.code||'—'}</td>
+      <td style="font-weight:500">${i.material}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--amber)">${i.qty}</td>
+      <td>${i.unit}</td><td style="font-size:11.5px">${i.proj||'—'}</td>
+      <td class="mono">${i.loc||'—'}</td>
+      <td style="font-size:11.5px">${i.purpose||'—'}</td>
+      <td>${i.contractor||'—'}</td><td>${i.engineer||'—'}</td>
+      <td class="mono">${i.date}</td>
+    </tr>`).join(''):'<tr><td colspan="14" style="text-align:center;padding:38px;color:var(--text3)">No issues recorded</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════
+// INDENT FORM — MATERIAL ROWS
+// ═══════════════════════════════════════════════════════
+function addIR(){
+  const id=++irSeq; irIds.push(id);
+  const pl='PL-'+String(++plSeq).padStart(2,'0');
+  const div=document.createElement('div');
+  div.className='mr'; div.id='ir-'+id;
+  const catOpts=MAT_CATS.map(c=>`<option>${c}</option>`).join('');
+  const unitOpts=UNITS.map(u=>`<option>${u}</option>`).join('');
+  div.innerHTML=`
+    <input id="ir-pl-${id}" value="${pl}" placeholder="PL-XX">
+    <input id="ir-in-${id}" placeholder="Indent No:01">
+    <input id="ir-mc-${id}" placeholder="CVL/A/133">
+    <input id="ir-mn-${id}" placeholder="Type material name">
+    <select id="ir-un-${id}">${unitOpts}</select>
+    <input id="ir-qt-${id}" type="number" min="0" placeholder="0" oninput="calcAmt(${id})">
+    <input id="ir-rt-${id}" type="number" min="0" placeholder="0" class="rate-field" oninput="calcAmt(${id})">
+    <input id="ir-am-${id}" readonly placeholder="Auto" title="Qty × Rate">
+    <select id="ir-cat-${id}">${catOpts}</select>
+    <button class="rm-btn" onclick="rmIR(${id})">×</button>
+  `;
+  document.getElementById('indent-rows').appendChild(div);
+}
+function rmIR(id){ document.getElementById('ir-'+id)?.remove(); irIds=irIds.filter(x=>x!==id); }
+function calcAmt(id){
+  const q=parseFloat(document.getElementById('ir-qt-'+id)?.value)||0;
+  const r=parseFloat(document.getElementById('ir-rt-'+id)?.value)||0;
+  const el=document.getElementById('ir-am-'+id);
+  if(el) el.value=q&&r?(q*r).toLocaleString('en-IN'):'';
+}
+function getIRs(){
+  return irIds.map(id=>({
+    pl:document.getElementById('ir-pl-'+id)?.value||'',
+    indentNo:document.getElementById('ir-in-'+id)?.value||'',
+    mrCode:document.getElementById('ir-mc-'+id)?.value||'',
+    item:document.getElementById('ir-mn-'+id)?.value||'',
+    unit:document.getElementById('ir-un-'+id)?.value||'Pcs',
+    prQty:parseFloat(document.getElementById('ir-qt-'+id)?.value)||0,
+    rate:parseFloat(document.getElementById('ir-rt-'+id)?.value)||0,
+    amount:(parseFloat(document.getElementById('ir-qt-'+id)?.value)||0)*(parseFloat(document.getElementById('ir-rt-'+id)?.value)||0),
+    category:document.getElementById('ir-cat-'+id)?.value||MAT_CATS[0],
+    revision:'R0',addSpec:'',purpose:''
+  })).filter(r=>r.item.trim());
+}
+
+// ═══════════════════════════════════════════════════════
+// SUBMIT INDENT
+// ═══════════════════════════════════════════════════════
+function submitIndent(){
+  if(!validateIndentForm()) return;
+  const projSel=document.getElementById('fi-proj').value;
+  const projOther=document.getElementById('fi-proj-other').value.trim();
+  const proj=projSel==='__other__'?projOther:projSel;
+  const indNo=document.getElementById('fi-indno').value.trim();
+  const items=getIRs();
+  const id='IND-'+String(indents.length+1).padStart(3,'0');
+  indents.push({
+    id,indNo,proj,wob:document.getElementById('fi-wob').value,
+    raisedBy:role,date:document.getElementById('fi-date').value||TODAY,
+    reqDate:document.getElementById('fi-reqdate').value,
+    poNo:document.getElementById('fi-pono').value,
+    items,stage:'PM',status:'pending',
+    history:[{role,action:'Raised',note:'Indent submitted by QS',date:TODAY}]
+  });
+  // Register PL numbers in stock
+  items.forEach(it=>{
+    if(!stock.find(s=>s.pl===it.pl)){
+      stock.push({pl:it.pl,code:it.mrCode||'—',name:it.item,cat:it.category,unit:it.unit,prQty:it.prQty,inwardQty:0,issueQty:0});
+    } else {
+      const s=stock.find(x=>x.pl===it.pl);
+      s.prQty=(s.prQty||0)+it.prQty;
+    }
+  });
+  closeModal('mIndent');
+  irIds=[]; document.getElementById('indent-rows').innerHTML='';
+  saveData(); renderAll();
+  notifyRoleAction('New Indent Awaiting Approval', `${indNo} submitted for ${proj} — PM approval required`, 'PM');
+  toast(`${indNo} submitted → PM for approval`,'amber');
+}
+
+// ═══════════════════════════════════════════════════════
+// APPROVAL FLOW
+// ═══════════════════════════════════════════════════════
+function approveIndent(id, note){
+  const i=indents.find(x=>x.id===id); if(!i)return;
+  const reqDateEl=document.getElementById('act-reqdate');
+  if(reqDateEl) i.reqDate=reqDateEl.value||i.reqDate;
+  const noteEl=document.getElementById('act-note');
+  i.history.push({role,action:'Approved',note:noteEl?.value||note||'Approved',date:TODAY});
+  const idx=FLOW.indexOf(i.stage);
+  i.stage=idx<FLOW.length-1?FLOW[idx+1]:FLOW[FLOW.length-1];
+  if(i.stage==='STORE'||FLOW.indexOf(i.stage)>=FLOW.length-1) i.status='completed'; else i.status='approved';
+  closeModal('mIndentDetail');
+  saveData(); renderAll();
+  notifyRoleAction('Indent Approved', `${i.indNo} approved — ${STAGES[i.stage]} action required`, i.stage);
+  toast(`${i.indNo} approved → ${STAGES[i.stage]}`,'green');
+}
+
+function rejectIndent(id, note){
+  const i=indents.find(x=>x.id===id); if(!i)return;
+  const noteEl=document.getElementById('act-note');
+  i.history.push({role,action:'Rejected',note:noteEl?.value||note||'Rejected',date:TODAY});
+  i.status='rejected';
+  closeModal('mIndentDetail');
+  saveData(); renderAll();
+  toast(`${i.indNo} rejected`,'rose');
+}
+
+// ═══════════════════════════════════════════════════════
+// INDENT DETAIL
+// ═══════════════════════════════════════════════════════
+function openIndentDetail(id){
+  const i=indents.find(x=>x.id===id); if(!i) return;
+  document.getElementById('idet-title').textContent=i.indNo+' — '+i.proj;
+  const total=i.items.reduce((a,m)=>a+(m.amount||m.prQty*(m.rate||0)),0);
+  const canAct=i.status==='pending'&&i.stage===role;
+  const si=FLOW.indexOf(i.stage);
+  const flowHtml=FLOW.map((s,idx)=>{
+    const done=(i.status==='completed')||idx<si;
+    const cur=idx===si&&i.status!=='completed'&&i.status!=='rejected';
+    const cls=done?'pfn-done':cur?'pfn-cur':'pfn-wait';
+    return `<div class="pfn ${cls}"><span class="pfl">${s}</span><span class="pfname">${STAGES[s]}</span></div>${idx<3?'<div class="pfa">›</div>':''}`;
+  }).join('');
+  document.getElementById('idet-body').innerHTML=`
+    <div class="det-g">
+      <div class="det-box"><div class="det-l">Status</div><div class="det-v">${sChip(i.status)}</div></div>
+      <div class="det-box"><div class="det-l"><span class="own own-pm">PM</span> Required By</div><div class="det-v mono" style="color:var(--blue)">${i.reqDate||'Not set yet'}</div></div>
+      <div class="det-box"><div class="det-l"><span class="own own-comm">Comm</span> PO Number</div><div class="det-v mono" style="color:var(--teal)">${i.poNo||'Not raised yet'}</div></div>
+      <div class="det-box"><div class="det-l">WO / BOQ Ref</div><div class="det-v mono">${i.wob||'—'}</div></div>
+      <div class="det-box"><div class="det-l">Date Raised</div><div class="det-v mono">${i.date}</div></div>
+      <div class="det-box"><div class="det-l">Project</div><div class="det-v" style="font-size:12px">${i.proj}</div></div>
+    </div>
+    <div style="margin-bottom:14px"><div class="det-l">Approval Pipeline</div><div class="pf" style="margin-top:8px">${flowHtml}</div></div>
+    <div style="margin-bottom:14px">
+      <div class="det-l">Material Items (PL No → Indent No → MR Code → Item → Unit → Qty → Rate → Amount)</div>
+      <div style="overflow-x:auto;margin-top:8px">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr>
+            <th style="background:var(--amber-lt);color:var(--amber);padding:6px 8px;font-size:9px;text-align:left;font-weight:700">PL No.</th>
+            <th style="background:var(--amber-lt);color:var(--amber);padding:6px 8px;font-size:9px;text-align:left;font-weight:700">Indent No</th>
+            <th style="background:var(--amber-lt);color:var(--amber);padding:6px 8px;font-size:9px;text-align:left;font-weight:700">MR Code</th>
+            <th style="background:var(--amber-lt);color:var(--amber);padding:6px 8px;font-size:9px;text-align:left;font-weight:700">Item / Material</th>
+            <th style="background:var(--amber-lt);color:var(--amber);padding:6px 8px;font-size:9px;text-align:left;font-weight:700">Category</th>
+            <th style="background:var(--amber-lt);color:var(--amber);padding:6px 8px;font-size:9px;text-align:right;font-weight:700">Unit</th>
+            <th style="background:var(--amber-lt);color:var(--amber);padding:6px 8px;font-size:9px;text-align:right;font-weight:700">PR Qty</th>
+            <th style="background:var(--teal-lt);color:var(--teal);padding:6px 8px;font-size:9px;text-align:right;font-weight:700">Rate (₹)</th>
+            <th style="background:var(--teal-lt);color:var(--teal);padding:6px 8px;font-size:9px;text-align:right;font-weight:700">Amount (₹)</th>
+            <th style="background:var(--amber-lt);color:var(--amber);padding:6px 8px;font-size:9px;text-align:left;font-weight:700">Purpose</th>
+          </tr></thead><tbody>
+          ${i.items.map(m=>`<tr style="border-bottom:1px solid var(--bg3)">
+            <td style="padding:6px 8px"><span class="pl-tag">${m.pl}</span></td>
+            <td style="padding:6px 8px" class="mono">${m.indentNo||i.indNo}</td>
+            <td style="padding:6px 8px" class="mono">${m.mrCode||'—'}</td>
+            <td style="padding:6px 8px;font-weight:500;color:var(--white)">${m.item}</td>
+            <td style="padding:6px 8px;font-size:10.5px;color:var(--text3)">${m.category||'—'}</td>
+            <td style="padding:6px 8px;text-align:right">${m.unit}</td>
+            <td style="padding:6px 8px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600">${m.prQty}</td>
+            <td style="padding:6px 8px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--teal)">${m.rate?m.rate.toLocaleString('en-IN'):'—'}</td>
+            <td style="padding:6px 8px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600">${m.amount?m.amount.toLocaleString('en-IN'):'—'}</td>
+            <td style="padding:6px 8px;font-size:11.5px;color:var(--text3)">${m.purpose||'—'}</td>
+          </tr>`).join('')}
+          <tr><td colspan="8" style="padding:6px 8px;font-weight:700;border-top:1px solid var(--border);color:var(--white)">Total</td>
+          <td colspan="2" style="padding:6px 8px;font-weight:700;border-top:1px solid var(--border);text-align:right;font-family:'JetBrains Mono',monospace;color:var(--teal)">₹${total.toLocaleString('en-IN')}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="det-l">Activity Log</div>
+      <div style="background:var(--bg3);border-radius:8px;padding:10px;margin-top:8px">
+        ${i.history.map(h=>{const c=colorMap(h.role);return `<div class="log-item"><div class="log-ico" style="background:${c}20;color:${c}">${h.role[0]}</div><div><div class="log-t" style="color:${c}">${h.action}</div><div class="log-m">${h.note} · ${h.date} · ${STAGES[h.role]||h.role}</div></div></div>`;}).join('')}
+      </div>
+    </div>
+    ${canAct?`<div class="action-box"><div class="ab-title">Your Action Required — ${STAGES[role]}</div>
+      ${role==='PM'?`<div style="margin-bottom:10px"><div class="fl" style="margin-bottom:4px">Required By Date <span class="lo own-pm">PM enters this field</span></div><input id="act-reqdate" type="date" value="${i.reqDate||''}"></div>`:''}
+      <textarea id="act-note" placeholder="Add a note (optional)…" style="margin-bottom:10px;min-height:55px"></textarea>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-green" onclick="approveIndent('${id}')">✓ Approve & Forward</button>
+        <button class="btn btn-rose" onclick="rejectIndent('${id}')">✗ Reject</button>
+      </div>
+    </div>`:i.status==='pending'?`<div style="padding:12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--text3)">⏳ This indent is awaiting action by <strong style="color:var(--white)">${STAGES[i.stage]}</strong>. Switch your role above to take action.</div>`:''}
+  `;
+  openModal('mIndentDetail');
+}
+
+// ═══════════════════════════════════════════════════════
+// PO SUBMIT & DETAIL
+// ═══════════════════════════════════════════════════════
+function fillPOFromIndent(id){
+  const i=indents.find(x=>x.id===id); if(!i) return;
+  const total=i.items.reduce((a,m)=>a+(m.amount||m.prQty*(m.rate||0)),0);
+  document.getElementById('po-val').value=total;
+}
+function submitPO(status){
+  if(!validatePOForm()) return;
+  const poNo=document.getElementById('po-no').value.trim();
+  const vendId=document.getElementById('po-vend').value;
+  const indRef=document.getElementById('po-ind').value;
+  const value=parseFloat(document.getElementById('po-val').value)||0;
+  pos.push({id:poNo,indRef,vendId,date:document.getElementById('po-date').value||TODAY,delDate:document.getElementById('po-del').value,addr:document.getElementById('po-addr').value,payTerms:document.getElementById('po-pay').value,delTerms:document.getElementById('po-delt').value,notes:document.getElementById('po-notes').value,value,status,iwStatus:'Awaiting'});
+  if(indRef){const i=indents.find(x=>x.id===indRef);if(i){i.poNo=poNo;i.history.push({role:'COMM',action:'PO Raised',note:`PO ${poNo} issued to vendor`,date:TODAY});i.stage='STORE';}}
+  closeModal('mPO');
+  saveData(); renderAll();
+  toast(`${poNo} ${status==='sent'?'issued to vendor':'saved as draft'}`,'teal');
+}
+function openPODetail(id){
+  const p=pos.find(x=>x.id===id);if(!p)return;
+  const v=findVend(p.vendId);
+  const i=indents.find(x=>x.id===p.indRef);
+  document.getElementById('podet-title').textContent=p.id;
+  document.getElementById('podet-body').innerHTML=`
+    <div class="det-g">
+      <div class="det-box"><div class="det-l">Status</div><div class="det-v">${sChip(p.status)}</div></div>
+      <div class="det-box"><div class="det-l">PO Value</div><div class="det-v" style="font-family:'JetBrains Mono',monospace;color:var(--teal)">₹${(p.value||0).toLocaleString('en-IN')}</div></div>
+      <div class="det-box"><div class="det-l">Inward Status</div><div class="det-v">${p.iwStatus||'Awaiting'}</div></div>
+      <div class="det-box"><div class="det-l">Vendor</div><div class="det-v">${v?.name||'—'}</div></div>
+      <div class="det-box"><div class="det-l">Delivery By</div><div class="det-v mono">${p.delDate||'—'}</div></div>
+      <div class="det-box"><div class="det-l">Payment Terms</div><div class="det-v">${p.payTerms}</div></div>
+    </div>
+    <div style="margin-bottom:12px;background:var(--bg3);border-radius:8px;padding:12px;font-size:12.5px">
+      <div style="margin-bottom:5px"><strong>Linked Indent:</strong> ${i?.indNo||p.indRef||'—'} | <strong>Project:</strong> ${i?.proj||'—'}</div>
+      <div style="margin-bottom:5px"><strong>Delivery Terms:</strong> ${p.delTerms} | <strong>Address:</strong> ${p.addr||'—'}</div>
+      ${p.notes?`<div><strong>Instructions:</strong> ${p.notes}</div>`:''}
+    </div>
+    ${p.status==='draft'?`<div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-teal btn-sm" onclick="pos.find(x=>x.id==='${id}').status='sent';saveData();renderAll();closeModal('mPODetail');toast('PO issued to vendor','teal')">Issue to Vendor →</button></div>`:''}
+  `;
+  openModal('mPODetail');
+}
+
+// ═══════════════════════════════════════════════════════
+// INWARD SUBMIT
+// ═══════════════════════════════════════════════════════
+function fillInwardFromPO(poId){
+  const p=pos.find(x=>x.id===poId);if(!p)return;
+  const ind=indents.find(x=>x.id===p.indRef);
+  const wrap=document.getElementById('iw-items');
+  wrap.innerHTML=`<div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px">Items — Enter Actual Received Quantities</div>`;
+  (ind?ind.items:[]).forEach((item,idx)=>{
+    const d=document.createElement('div');
+    d.className='iw-item';
+    d.innerHTML=`
+      <div><span class="pl-tag">${item.pl}</span></div>
+      <div><div class="iw-item-info">${item.item}</div><div class="iw-item-sub">MR: ${item.mrCode||'—'} | PO Qty: <strong>${item.prQty} ${item.unit}</strong></div></div>
+      <div><div class="iw-lbl">Received Qty*</div><input type="number" id="iw-q-${idx}" value="${item.prQty}" min="0" style="text-align:right;max-width:90px"></div>
+      <div><div class="iw-lbl">Basic Rate (₹)</div><input type="number" id="iw-r-${idx}" value="${item.rate||0}" min="0" style="max-width:80px"></div>
+      <div><div class="iw-lbl">Tax %</div><input type="number" id="iw-t-${idx}" value="18" min="0" max="100" style="max-width:60px"></div>
+    `;
+    wrap.appendChild(d);
+  });
+  wrap._items=ind?ind.items:[];
+}
+
+function submitInward(){
+  if(!validateInwardForm()) return;
+  const poId=document.getElementById('iw-po').value;
+  const p=pos.find(x=>x.id===poId);if(!p)return;
+  const ind=indents.find(x=>x.id===p.indRef);
+  const srcItems=ind?ind.items:[];
+  const items=srcItems.map((item,idx)=>({
+    pl:item.pl,name:item.item,poQty:item.prQty,
+    recQty:parseFloat(document.getElementById('iw-q-'+idx)?.value)||0,
+    unit:item.unit,
+    basicRate:parseFloat(document.getElementById('iw-r-'+idx)?.value)||0,
+    taxPct:(parseFloat(document.getElementById('iw-t-'+idx)?.value)||0)/100,
+    transport:0
+  }));
+  const id='GRN-'+String(inwards.length+1).padStart(3,'0');
+  inwards.push({id,poRef:poId,vendId:p.vendId,date:document.getElementById('iw-date').value||TODAY,invRef:document.getElementById('iw-inv').value,vehicle:document.getElementById('iw-veh').value,recBy:document.getElementById('iw-recby').value||'Storekeeper',remarks:document.getElementById('iw-remarks').value,items});
+  // Update stock
+  items.forEach(item=>{
+    let s=stock.find(x=>x.pl===item.pl);
+    if(!s){s={pl:item.pl,code:'—',name:item.name,cat:'General',unit:item.unit,prQty:item.poQty,inwardQty:0,issueQty:0};stock.push(s);}
+    s.inwardQty=(s.inwardQty||0)+item.recQty;
+  });
+  const full=items.every(i=>i.recQty>=i.poQty);
+  p.iwStatus=full?'Full GRN':'Partial GRN';
+  if(full) p.status='closed';
+  if(ind){
+    ind.stage='STORE';ind.status='completed';
+    ind.history.push({role:'STORE',action:'Inward Complete',note:`${id} recorded. Invoice: ${document.getElementById('iw-inv').value}`,date:TODAY});
+  }
+  closeModal('mInward');
+  document.getElementById('iw-items').innerHTML='';
+  saveData();renderAll();
+  toast(`${id} saved. Stock updated.`,'green');
+}
+
+function openGRNDetail(id){
+  const g=inwards.find(x=>x.id===id);if(!g)return;
+  const v=findVend(g.vendId);
+  const lines=g.items.map(i=>{
+    const amt=i.recQty*i.basicRate;
+    const tax=amt*i.taxPct;
+    const total=amt+tax+(i.transport||0);
+    return `${i.pl}|${i.name}: ${i.recQty}/${i.poQty} ${i.unit} | Rate: ₹${i.basicRate} | Amount: ₹${amt.toFixed(0)} | Tax(${(i.taxPct*100).toFixed(0)}%): ₹${tax.toFixed(0)} | Total: ₹${total.toFixed(0)}${i.recQty<i.poQty?' ⚠ SHORT':''}`;
+  });
+  alert(`GRN: ${g.id}\nPO Ref: ${g.poRef}\nSupplier: ${v?.name}\nInvoice: ${g.invRef||'—'}\nDate: ${g.date}\nVehicle/DC: ${g.vehicle||'—'}\nReceived By: ${g.recBy}\n\nItems:\n${lines.join('\n')}\n\nRemarks: ${g.remarks||'—'}`);
+}
+
+// ═══════════════════════════════════════════════════════
+// ISSUE SUBMIT
+// ═══════════════════════════════════════════════════════
+function fillIssueFromStock(name){
+  const s=stock.find(x=>x.name===name);
+  if(!s)return;
+  document.getElementById('iss-pl').value=s.pl||'';
+  document.getElementById('iss-code').value=s.code||'';
+  document.getElementById('iss-cat').value=s.cat||'';
+  document.getElementById('iss-unit').value=s.unit||'';
+  document.getElementById('iss-avail').textContent=stockQty(s);
+}
+
+function submitIssue(){
+  if(!validateIssueForm()) return;
+  const mat=document.getElementById('iss-mat').value;
+  const qty=parseFloat(document.getElementById('iss-qty').value)||0;
+  const s=stock.find(x=>x.name===mat);
+  const docNo=document.getElementById('iss-docno').value.trim()||('ISS-'+String(issues.length+1).padStart(3,'0'));
+  const id='ISS-'+String(issues.length+1).padStart(3,'0');
+  issues.push({
+    id,docNo,pl:document.getElementById('iss-pl').value,
+    indRef:document.getElementById('iss-indent').value,
+    cat:document.getElementById('iss-cat').value,
+    code:document.getElementById('iss-code').value,
+    material:mat,qty,unit:s?.unit||'',
+    proj:document.getElementById('iss-proj').value,
+    loc:document.getElementById('iss-loc').value,
+    purpose:document.getElementById('iss-purpose').value,
+    contractor:document.getElementById('iss-cont').value,
+    engineer:document.getElementById('iss-eng').value,
+    date:document.getElementById('iss-date').value||TODAY,
+    remarks:document.getElementById('iss-rem').value,
+  });
+  if(s) s.issueQty=(s.issueQty||0)+qty;
+  closeModal('mIssue');
+  saveData();renderAll();
+  toast(`${qty} ${s?.unit||''} issued (Doc: ${docNo})`,'amber');
+}
+
+// ═══════════════════════════════════════════════════════
+// VENDOR
+// ═══════════════════════════════════════════════════════
+function submitVendor(){
+  const name=document.getElementById('v-name').value.trim();
+  if(!name){toast('Enter vendor name','rose');return;}
+  vendors.push({id:'V'+String(vendors.length+1).padStart(3,'0'),name,con:document.getElementById('v-con').value,ph:document.getElementById('v-ph').value,cat:document.getElementById('v-cat').value,gst:document.getElementById('v-gst').value,terms:document.getElementById('v-terms').value,addr:document.getElementById('v-addr').value});
+  closeModal('mVendor');
+  renderVendors();
+  saveData();
+  toast('Vendor saved','green');
+}
+
+function findVend(id){ return vendors.find(v=>v.id===id); }
+
+// ═══════════════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════════════
+function openModal(id){
+  // Clear all validation states
+  document.querySelectorAll('#'+id+' .field-error').forEach(el=>el.classList.remove('field-error'));
+  document.querySelectorAll('#'+id+' .err-msg.show').forEach(el=>el.classList.remove('show'));
+
+  if(id==='mIndent'){
+    document.getElementById('indent-rows').innerHTML=''; irIds=[];
+    addIR();
+    document.getElementById('fi-date').value=TODAY;
+    document.getElementById('fi-reqdate').value='';
+    document.getElementById('fi-pono').value='';
+    document.getElementById('fi-proj').value='';
+    document.getElementById('fi-indno').value='Indent No:'+String(indents.length+1).padStart(2,'0');
+    document.getElementById('fi-proj-other-wrap').style.display='none';
+  }
+  if(id==='mPO'){
+    const sel=document.getElementById('po-ind');
+    sel.innerHTML='<option value="">-- Select Approved Indent --</option>'+indents.filter(i=>i.status==='approved'&&i.stage==='COMM').map(i=>`<option value="${i.id}">${i.indNo} – ${i.proj}</option>`).join('');
+    const vs=document.getElementById('po-vend');
+    vs.innerHTML='<option value="">-- Select Vendor --</option>'+vendors.map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
+    document.getElementById('po-date').value=TODAY;
+  }
+  if(id==='mInward'){
+    const ps=document.getElementById('iw-po');
+    ps.innerHTML='<option value="">-- Select PO (Sent status) --</option>'+pos.filter(p=>p.status==='sent').map(p=>`<option value="${p.id}">${p.id} – ${findVend(p.vendId)?.name||p.vendId}</option>`).join('');
+    document.getElementById('iw-date').value=TODAY;
+    document.getElementById('iw-items').innerHTML='';
+  }
+  if(id==='mIssue'){
+    const ms=document.getElementById('iss-mat');
+    ms.innerHTML='<option value="">-- Select Material --</option>'+stock.filter(s=>stockQty(s)>0).map(s=>`<option value="${s.name}">[${s.pl}] ${s.name} — ${stockQty(s)} ${s.unit}</option>`).join('');
+    const is=document.getElementById('iss-indent');
+    is.innerHTML='<option value="">-- Optional --</option>'+indents.map(i=>`<option value="${i.id}">${i.indNo} – ${i.proj}</option>`).join('');
+    const ps=document.getElementById('iss-proj');
+    ps.innerHTML='<option value="">-- Select Project --</option>'+PROJECTS.map(p=>`<option>${p}</option>`).join('');
+    document.getElementById('iss-date').value=TODAY;
+    document.getElementById('iss-docno').value='DOC-'+String(issues.length+1).padStart(3,'0');
+  }
+  if(id==='mVendor'){
+    ['v-name','v-con','v-ph','v-gst','v-addr'].forEach(x=>document.getElementById(x).value='');
+  }
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); }));
+
+// Project "other" toggle
+function toggleOtherProj(val){
+  document.getElementById('fi-proj-other-wrap').style.display=val==='__other__'?'flex':'none';
+}
+
+// ═══════════════════════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════════════════════
+function toggleTheme(){
+  const html=document.documentElement;
+  const isLight=html.getAttribute('data-theme')==='light';
+  html.setAttribute('data-theme',isLight?'dark':'light');
+  document.getElementById('themeBtn').textContent=isLight?'🌙':'☀️';
+  updateMetaTheme(isLight); // isLight=true means switching TO dark
+  try{ localStorage.setItem('ge_theme',isLight?'dark':'light'); }catch(e){}
+}
+function loadTheme(){
+  try{
+    const t=localStorage.getItem('ge_theme');
+    if(t==='light'){document.documentElement.setAttribute('data-theme','light');document.getElementById('themeBtn').textContent='☀️';}
+  }catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════
+// FORM VALIDATION
+// ═══════════════════════════════════════════════════════
+function validateField(id){
+  const el=document.getElementById(id);
+  const errEl=document.getElementById('err-'+id);
+  if(!el) return true;
+  const val=el.value?.trim();
+  const empty=!val||val==='';
+  if(empty){
+    el.classList.add('field-error');
+    if(errEl) errEl.classList.add('show');
+    return false;
+  } else {
+    el.classList.remove('field-error');
+    if(errEl) errEl.classList.remove('show');
+    return true;
+  }
+}
+
+function validateIssueQty(){
+  const qty=parseFloat(document.getElementById('iss-qty')?.value)||0;
+  const avail=parseFloat(document.getElementById('iss-avail')?.textContent)||0;
+  const errEl=document.getElementById('err-iss-qty');
+  const el=document.getElementById('iss-qty');
+  if(qty<=0){
+    el.classList.add('field-error');
+    if(errEl){errEl.textContent='Enter a quantity greater than 0';errEl.classList.add('show');}
+    return false;
+  }
+  if(qty>avail){
+    el.classList.add('field-error');
+    if(errEl){errEl.textContent=`Only ${avail} available in stock`;errEl.classList.add('show');}
+    return false;
+  }
+  el.classList.remove('field-error');
+  if(errEl) errEl.classList.remove('show');
+  return true;
+}
+
+function clearValidation(fields){
+  fields.forEach(id=>{
+    const el=document.getElementById(id);
+    const errEl=document.getElementById('err-'+id);
+    if(el) el.classList.remove('field-error');
+    if(errEl) errEl.classList.remove('show');
+  });
+}
+
+function validateIndentForm(){
+  const projSel=document.getElementById('fi-proj').value;
+  const projOther=document.getElementById('fi-proj-other').value.trim();
+  let ok=true;
+  if(!projSel||(projSel==='__other__'&&!projOther)){
+    if(projSel==='__other__') validateField('fi-proj-other');
+    else validateField('fi-proj');
+    ok=false;
+  }
+  if(!validateField('fi-date')) ok=false;
+  if(!validateField('fi-indno')) ok=false;
+  const rows=getIRs();
+  if(!rows.length){
+    toast('Add at least one material row with a name','rose');
+    ok=false;
+  } else {
+    let rowOk=true;
+    rows.forEach(r=>{ if(!r.item.trim()||r.prQty<=0) rowOk=false; });
+    if(!rowOk){ toast('All material rows must have a name and quantity > 0','rose'); ok=false; }
+  }
+  return ok;
+}
+
+function validatePOForm(){
+  let ok=true;
+  if(!validateField('po-ind')) ok=false;
+  if(!validateField('po-no')) ok=false;
+  if(!validateField('po-vend')) ok=false;
+  if(!validateField('po-date')) ok=false;
+  const val=parseFloat(document.getElementById('po-val')?.value)||0;
+  if(val<=0){
+    document.getElementById('po-val').classList.add('field-error');
+    document.getElementById('err-po-val').classList.add('show');
+    ok=false;
+  }
+  return ok;
+}
+
+function validateInwardForm(){
+  let ok=true;
+  if(!validateField('iw-po')) ok=false;
+  if(!validateField('iw-date')) ok=false;
+  if(!validateField('iw-inv')) ok=false;
+  if(!validateField('iw-recby')) ok=false;
+  return ok;
+}
+
+function validateIssueForm(){
+  let ok=true;
+  if(!document.getElementById('iss-mat').value){
+    document.getElementById('iss-mat').classList.add('field-error');
+    toast('Select a material','rose'); ok=false;
+  }
+  if(!validateIssueQty()) ok=false;
+  if(!document.getElementById('iss-date').value){
+    document.getElementById('iss-date').classList.add('field-error');
+    toast('Issue date is required','rose'); ok=false;
+  }
+  return ok;
+}
+
+// ═══════════════════════════════════════════════════════
+// FILTERS & SEARCH
+// ═══════════════════════════════════════════════════════
+function filterTbl(tbl,val,btn){
+  filters[tbl]=val;
+  btn.closest('.ftabs').querySelectorAll('.ftab').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  renderAll();
+}
+function searchTbl(tbl,q){ searches[tbl]=q.toLowerCase(); renderAll(); }
+
+// ═══════════════════════════════════════════════════════
+// EXCEL EXPORT — Matching civil team sheet formats
+// ═══════════════════════════════════════════════════════
+function exportCSV(type){
+  let rows=[], h=[], fn='';
+  const BOM='\uFEFF';
+  if(type==='indents'){
+    h=['Sl No.','PR Date','PR Month','PL No.','Indent No','Material Category','MR Code','Item','PR Qty','Unit','Project','Purpose','Revision','Additional Specification','Remarks'];
+    let sl=1;
+    indents.forEach(i=>{
+      i.items.forEach(m=>{
+        rows.push([sl++,i.date,i.date.substring(0,7),m.pl,m.indentNo||i.indNo,m.category||'',m.mrCode||'',m.item,m.prQty,m.unit,i.proj,m.purpose||'',m.revision||'R0',m.addSpec||'',m.remarks||'']);
+      });
+    });
+    fn='Indent_Format';
+  } else if(type==='po'){
+    h=['PO Number','Indent Ref','Vendor','PO Date','Delivery Date','PO Value (₹)','Payment Terms','Delivery Terms','Notes','Status','Inward Status'];
+    rows=pos.map(p=>[p.id,p.indRef||'',findVend(p.vendId)?.name||'',p.date,p.delDate||'',p.value||0,p.payTerms,p.delTerms,p.notes||'',p.status.toUpperCase(),p.iwStatus||'Awaiting']);
+    fn='PO_Register';
+  } else if(type==='inward'){
+    h=['SL No','Project','Date','Supplier Name','Invoice Ref No','PL No','Indent Ref No','Material Code','Material description as per indent','unit','Received Qty','Basic Rate','Amount','Tax Amount','TCS','Transportation','Total amount','Tax Percent','Remarks'];
+    let sl=1;
+    inwards.forEach(g=>{
+      const p=pos.find(x=>x.id===g.poRef);
+      const ind=p?indents.find(x=>x.id===p.indRef):null;
+      g.items.forEach(item=>{
+        const amt=item.recQty*item.basicRate;
+        const tax=amt*(item.taxPct||0);
+        const total=amt+tax+(item.transport||0);
+        rows.push([sl++,ind?.proj||'',g.date,findVend(g.vendId)?.name||'',g.invRef||'',item.pl,ind?.indNo||'',item.mrCode||item.code||'',item.name,item.unit,item.recQty,item.basicRate||0,amt,tax,0,item.transport||0,total,(item.taxPct||0)]);
+      });
+    });
+    fn='Inward_Format';
+  } else if(type==='stock'){
+    h=['Sl No','Item Code','Material','Unit','PR Qty','Inward Qty','Pending PR Qty','Issue Qty','Stock Qty','Physical Stock Qty','Remarks'];
+    rows=stock.map((s,i)=>{
+      const sq=stockQty(s);
+      const pending=Math.max(0,(s.prQty||0)-(s.inwardQty||0));
+      return [i+1,s.code,s.name,s.unit,s.prQty||0,s.inwardQty||0,pending,s.issueQty||0,sq,'',s.cat||''];
+    });
+    fn='Summary';
+  } else if(type==='issues'){
+    h=['Issued Date','Month','Material Category','Code','Issued Material','Issued Qty','Unit','Doc No.','Project','Location','Purpose','Contractor Name','Engineer Name','Remarks','Issued Qty in Indent unit','PR unit'];
+    rows=issues.map(i=>[i.date,i.date.substring(0,7),i.cat||'',i.code||'',i.material,i.qty,i.unit,i.docNo||i.id,i.proj||'',i.loc||'',i.purpose||'',i.contractor||'',i.engineer||'',i.remarks||'',i.qty,i.unit]);
+    fn='Issue_Report';
+  }
+  const csv=[h,...rows].map(r=>r.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([BOM+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=fn+'_'+TODAY+'.csv'; a.click();
+  toast('Downloaded ✓','green');
+}
+
+function exportAll(){
+  ['indents','po','inward','stock','issues'].forEach((t,i)=>setTimeout(()=>exportCSV(t),i*350));
+  toast('Downloading all 5 reports…','teal');
+}
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+function toast(msg,type='amber'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`show t-${type}`;
+  setTimeout(()=>t.className='',3200);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+initData();
+loadTheme();
+applyRoleNav();
+initBottomNav();
+document.getElementById('tbDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+
+// Handle PWA shortcut URLs
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('action')==='indent') setTimeout(()=>openModal('mIndent'), 500);
+if(urlParams.get('page')) setTimeout(()=>go(urlParams.get('page')), 300);
+
+// iOS: show install banner manually (no beforeinstallprompt on iOS)
+if(isIOS() && !isInStandaloneMode() && !localStorage.getItem('ge_install_dismissed')){
+  setTimeout(()=>{
+    const banner = document.getElementById('install-banner');
+    banner.classList.add('show');
+    // Change install button text for iOS
+    const btn = banner.querySelector('.btn-ghost');
+    if(btn) btn.textContent = 'How to Install';
+  }, 4000);
+}
+
+// Update meta theme-color when theme changes
+function updateMetaTheme(dark){
+  document.getElementById('metaThemeColor').content = dark ? '#0E1018' : '#F5F3EE';
+}
+
+// Auto-save every 30 seconds
+setInterval(saveData, 30000);
+
+renderDash();
+updateBadges();
+</script>
+</body>
+</html>
