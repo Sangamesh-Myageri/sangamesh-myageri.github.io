@@ -360,9 +360,11 @@ select option{background:var(--bg3);color:var(--text)}
   <button class="nbtn" onclick="go('po')" id="nav-po"><span class="ni">📄</span><span>Purchase Orders</span><span class="nbadge nb-t" id="b-po">0</span></button>
   <button class="nbtn" onclick="go('vendors')" id="nav-vendors"><span class="ni">🏭</span><span>Vendors</span></button>
   <div class="nsec">Warehouse</div>
-  <button class="nbtn" onclick="go('inward')" id="nav-inward"><span class="ni">📦</span><span>Inward / GRN</span><span class="nbadge nb-g" id="b-iw">0</span></button>
+  <button class="nbtn" onclick="go('demand')" id="nav-demand"><span class="ni">📝</span><span>Demand Notes</span><span class="nbadge nb-a" id="b-dem">0</span></button>
+  <button class="nbtn" onclick="go('inward')" id="nav-inward"><span class="ni">📦</span><span>Inward</span><span class="nbadge nb-g" id="b-iw">0</span></button>
   <button class="nbtn" onclick="go('stock')" id="nav-stock"><span class="ni">🗄️</span><span>Stock / Summary</span><span class="nbadge nb-r" id="b-stk">0</span></button>
   <button class="nbtn" onclick="go('issues')" id="nav-issues"><span class="ni">🚛</span><span>Issues to Site</span></button>
+  <button class="nbtn" onclick="go('issueconfirm')" id="nav-issueconfirm"><span class="ni">✅</span><span>Confirm Issues</span><span class="nbadge nb-g" id="b-isc">0</span></button>
   <div class="nsec">Reports</div>
   <button class="nbtn" onclick="go('reports')" id="nav-reports"><span class="ni">📈</span><span>Export / Reports</span></button>
 </nav>
@@ -408,10 +410,10 @@ select option{background:var(--bg3);color:var(--text)}
     </div>
     <div class="tw"><table>
       <thead><tr>
-        <th class="c-qs">Indent No</th><th class="c-qs">PR Date</th><th class="c-qs">Project</th>
-        <th class="c-qs">PL No(s)</th><th class="c-qs">Raised By</th>
-        <th class="c-pm">Req. Date (PM)</th><th class="c-comm">PO No (Comm)</th>
-        <th>Pipeline</th><th>Status</th><th>Action</th>
+        <th class="c-qs">Sl No</th><th class="c-qs">PR Date</th><th class="c-qs">PR Month</th>
+        <th class="c-qs">PL No(s)</th><th class="c-qs">Indent No</th>
+        <th class="c-qs">Material Category</th><th class="c-qs">Project</th>
+        <th class="c-qs">Purpose</th><th>Pipeline</th><th>Status</th><th>Action</th>
       </tr></thead>
       <tbody id="tbl-indents"></tbody>
     </table></div>
@@ -432,17 +434,18 @@ select option{background:var(--bg3);color:var(--text)}
       <input class="srch" type="text" placeholder="Search POs…" oninput="searchTbl('po',this.value)">
       <div class="ftabs">
         <button class="ftab act" onclick="filterTbl('po','all',this)">All</button>
-        <button class="ftab" onclick="filterTbl('po','draft',this)">Draft</button>
-        <button class="ftab" onclick="filterTbl('po','sent',this)">Sent</button>
-        <button class="ftab" onclick="filterTbl('po','partial',this)">Partial GRN</button>
+        <button class="ftab" onclick="filterTbl('po','pending_pm',this)">⏳ Pending PM</button>
+        <button class="ftab" onclick="filterTbl('po','sent',this)">Sent to Vendor</button>
+        <button class="ftab" onclick="filterTbl('po','partial',this)">Partial Inward</button>
         <button class="ftab" onclick="filterTbl('po','closed',this)">Closed</button>
       </div>
     </div>
     <div class="tw"><table>
       <thead><tr>
-        <th class="c-comm">PO Number</th><th class="c-comm">Indent Ref</th><th class="c-comm">Vendor</th>
-        <th class="c-comm">PO Date</th><th class="c-comm">PO Value (₹)</th>
-        <th class="c-pm">Req. Date</th><th class="c-store">Inward</th><th>Status</th><th>Action</th>
+        <th class="c-comm">PO Number</th><th class="c-comm">PO Date</th>
+        <th class="c-comm">Indent Ref</th><th class="c-comm">Project</th>
+        <th class="c-comm">Vendor</th><th class="c-comm">PO Value (₹)</th>
+        <th class="c-pm">PM Approval</th><th class="c-store">Inward</th><th>Status</th><th>Action</th>
       </tr></thead>
       <tbody id="tbl-po"></tbody>
     </table></div>
@@ -461,19 +464,20 @@ select option{background:var(--bg3);color:var(--text)}
 <!-- ══ INWARD ══ -->
 <div class="page" id="page-inward">
   <div class="ph">
-    <div><h1>Inward / GRN</h1><p><span class="own own-store">Store</span> records material arrivals — updates stock automatically</p></div>
+    <div><h1>Inward</h1><p><span class="own own-store">Store</span> records material arrivals — updates stock automatically</p></div>
     <div class="ph-acts">
       <button class="btn btn-green" onclick="openModal('mInward')">+ Record Inward</button>
       <button class="btn btn-ghost" onclick="exportCSV('inward')">⬇ Excel</button>
     </div>
   </div>
   <div class="card">
-    <div class="tb2"><input class="srch" type="text" placeholder="Search GRN, PL No…" oninput="searchTbl('inward',this.value)"></div>
+    <div class="tb2"><input class="srch" type="text" placeholder="Search Inward No, PL No…" oninput="searchTbl('inward',this.value)"></div>
     <div class="tw"><table>
       <thead><tr>
-        <th class="c-store">GRN No.</th><th>PO Ref</th><th>PL No(s)</th><th class="c-store">Supplier</th>
-        <th class="c-store">Invoice Ref</th><th class="c-store">Inward Date</th>
-        <th class="c-store">Received By</th><th>Items</th><th>Discrepancy</th><th>Action</th>
+        <th class="c-store">SL No</th><th class="c-store">Project</th><th class="c-store">Date</th>
+        <th class="c-store">Supplier Name</th><th class="c-store">Invoice Ref No</th>
+        <th class="c-qs">PL No</th><th class="c-qs">Indent Ref No</th>
+        <th class="c-store">Received By</th><th>Discrepancy</th><th>Action</th>
       </tr></thead>
       <tbody id="tbl-inward"></tbody>
     </table></div>
@@ -518,13 +522,61 @@ select option{background:var(--bg3);color:var(--text)}
   </div>
   <div class="card"><div class="tw"><table>
     <thead><tr>
-      <th>Doc No.</th><th>PL No.</th><th>Indent Ref</th><th>Material Category</th>
-      <th>Item Code</th><th>Issued Material</th><th class="c-store">Issued Qty</th><th>Unit</th>
-      <th>Project</th><th>Location</th><th>Purpose</th><th>Contractor</th>
-      <th class="c-store">Engineer</th><th class="c-store">Date</th>
+      <th class="c-store">Issued Date</th><th>Month</th><th>Material Category</th><th>Code</th>
+      <th>Issued Material</th><th class="c-store">Issued Qty</th><th>Unit</th>
+      <th>Doc No.</th><th>Project</th><th>Location</th><th>Purpose</th>
+      <th>Contractor Name</th><th class="c-store">Engineer Name</th>
+      <th>Remarks</th><th>Stage Code</th>
     </tr></thead>
     <tbody id="tbl-issues"></tbody>
   </table></div></div>
+</div>
+
+<!-- ══ DEMAND NOTES ══ -->
+<div class="page" id="page-demand">
+  <div class="ph">
+    <div><h1>Demand Notes</h1><p><span class="own own-qs">Site Engineer</span> raises demand note → <span class="own own-store">Store</span> acknowledges → materials issued</p></div>
+    <div class="ph-acts">
+      <button class="btn btn-amber" onclick="openModal('mDemand')">+ New Demand Note</button>
+      <button class="btn btn-ghost" onclick="exportCSV('demand')">⬇ Excel</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="tb2">
+      <input class="srch" type="text" placeholder="Search by stage, project, contractor…" oninput="searchTbl('demand',this.value)">
+      <div class="ftabs">
+        <button class="ftab act" onclick="filterTbl('demand','all',this)">All</button>
+        <button class="ftab" onclick="filterTbl('demand','pending',this)">Pending</button>
+        <button class="ftab" onclick="filterTbl('demand','acknowledged',this)">Acknowledged</button>
+        <button class="ftab" onclick="filterTbl('demand','issued',this)">Issued</button>
+      </div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th>Stage No</th><th>Date</th><th>Project</th><th>Location</th>
+        <th>Contractor</th><th>Particulars</th><th>Unit</th><th>Qty Required</th>
+        <th>Nature of Work</th><th>Requested By</th><th>CM Name</th><th>Status</th><th>Action</th>
+      </tr></thead>
+      <tbody id="tbl-demand"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══ ISSUE CONFIRM ══ -->
+<div class="page" id="page-issueconfirm">
+  <div class="ph">
+    <div><h1>Confirm Issues</h1><p><span class="own own-store">Store Team</span> confirms materials physically dispatched to site</p></div>
+  </div>
+  <div class="card">
+    <div class="tw"><table>
+      <thead><tr>
+        <th>Issue No.</th><th>Doc No.</th><th>Date</th><th>Material</th>
+        <th>Qty</th><th>Unit</th><th>Issued To</th><th>Project</th>
+        <th>Store Status</th><th>Action</th>
+      </tr></thead>
+      <tbody id="tbl-issueconfirm"></tbody>
+    </table></div>
+  </div>
 </div>
 
 <!-- ══ REPORTS ══ -->
@@ -545,7 +597,7 @@ select option{background:var(--bg3);color:var(--text)}
     </div></div>
     <div class="card"><div class="cb" style="text-align:center;padding:22px">
       <div style="font-size:30px;margin-bottom:8px">📦</div>
-      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:5px">Inward Register (GRN Format)</div>
+      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:5px">Inward Register</div>
       <div style="font-size:11.5px;color:var(--text3);margin-bottom:12px">Matches "Inward Format" — Supplier, Invoice Ref, Rates, Tax, Total</div>
       <button class="btn btn-green btn-sm" onclick="exportCSV('inward')">⬇ Download Excel</button>
     </div></div>
@@ -585,7 +637,7 @@ select option{background:var(--bg3);color:var(--text)}
       <span class="oli"><span class="old" style="background:var(--blue)"></span>PM fills on approval</span>
       <span class="oli"><span class="old" style="background:var(--teal)"></span>Commercial fills</span>
     </div>
-      <div class="fg">
+    <div class="fg">
       <div class="fgr">
         <div class="fl">Project<span class="req-mark">*</span> <span class="lo own-qs">QS</span></div>
         <select id="fi-proj" onchange="validateField('fi-proj');toggleOtherProj(this.value)">
@@ -612,27 +664,20 @@ select option{background:var(--bg3);color:var(--text)}
         <input id="fi-indno" placeholder="e.g. Indent No:01" oninput="validateField('fi-indno')">
         <span class="err-msg" id="err-fi-indno">Indent number is required</span>
       </div>
-      <div class="fgr">
-        <div class="fl">WO / BOQ Ref <span class="lo own-qs">QS</span></div>
-        <input id="fi-wob" placeholder="e.g. WO-2026-041">
-      </div>
-      <div class="fgr">
-        <div class="fl">Required By Date <span class="lo own-pm">PM fills</span></div>
-        <input id="fi-reqdate" type="date" placeholder="Set by PM on approval">
-      </div>
-      <div class="fgr">
-        <div class="fl">PO Number <span class="lo own-comm">Comm fills</span></div>
-        <input id="fi-pono" placeholder="Filled by Commercial team" style="background:var(--bg4);color:var(--text3)">
-      </div>
     </div>
 
-    <div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-lbl">Material Items — Civil Team Column Order</span><div class="sdiv-line"></div></div>
+    <div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-lbl">Material Items</span><div class="sdiv-line"></div></div>
     <div class="mat-tbl">
-      <div class="mth">
-        <span class="c-qs-h">PL No.*</span><span class="c-qs-h">Indent No</span><span class="c-qs-h">MR Code</span>
-        <span class="c-qs-h">Item / Material ✏ Manual</span><span class="c-qs-h">Unit</span><span class="c-qs-h">PR Qty</span>
-        <span class="c-comm-h">Rate (₹)</span><span class="c-comm-h">Amount</span>
-        <span class="c-qs-h">Purpose</span><span></span>
+      <div class="mth" style="grid-template-columns:70px 80px 1fr 70px 70px 80px 85px 130px 32px">
+        <span class="c-qs-h">PL No.*</span>
+        <span class="c-qs-h">MR Code</span>
+        <span class="c-qs-h">Item / Material ✏</span>
+        <span class="c-qs-h">Unit</span>
+        <span class="c-qs-h">PR Qty</span>
+        <span class="c-comm-h">Rate (₹)</span>
+        <span class="c-comm-h">Amount</span>
+        <span class="c-qs-h">Purpose</span>
+        <span></span>
       </div>
       <div id="indent-rows"></div>
       <button class="add-mr" onclick="addIR()">+ Add Material Row</button>
@@ -642,14 +687,6 @@ select option{background:var(--bg3);color:var(--text)}
       <button class="btn btn-amber" id="btn-indent-submit" onclick="submitIndent()">Submit Indent →</button>
     </div>
   </div>
-</div>
-</div>
-
-<!-- INDENT DETAIL MODAL -->
-<div class="overlay" id="mIndentDetail">
-<div class="modal">
-  <div class="mh"><h2 id="idet-title">Indent Detail</h2><button class="mc" onclick="closeModal('mIndentDetail')">×</button></div>
-  <div class="mb" id="idet-body"></div>
 </div>
 </div>
 
@@ -825,29 +862,46 @@ select option{background:var(--bg3);color:var(--text)}
 <!-- INWARD MODAL -->
 <div class="overlay" id="mInward">
 <div class="modal modal-md">
-  <div class="mh"><h2>Record Inward (GRN) <span class="own own-store">Store</span></h2><button class="mc" onclick="closeModal('mInward')">×</button></div>
+  <div class="mh"><h2>Record Inward <span class="own own-store">Store</span></h2><button class="mc" onclick="closeModal('mInward')">×</button></div>
   <div class="mb">
     <div class="fg">
-      <div class="fgr"><div class="fl">PO Reference<span class="req-mark">*</span></div>
-        <select id="iw-po" onchange="fillInwardFromPO(this.value);validateField('iw-po')"><option value="">-- Select PO --</option></select>
-        <span class="err-msg" id="err-iw-po">Select a PO</span></div>
-      <div class="fgr"><div class="fl">Inward Date<span class="req-mark">*</span></div>
+      <div class="fgr">
+        <div class="fl">PO Reference<span class="req-mark">*</span></div>
+        <select id="iw-po" onchange="fillInwardPLSelect(this.value);validateField('iw-po')"><option value="">-- Select PO --</option></select>
+        <span class="err-msg" id="err-iw-po">Select a PO</span>
+      </div>
+      <div class="fgr">
+        <div class="fl">Inward Date<span class="req-mark">*</span></div>
         <input id="iw-date" type="date" onchange="validateField('iw-date')">
-        <span class="err-msg" id="err-iw-date">Date is required</span></div>
-      <div class="fgr"><div class="fl">Invoice Ref No.<span class="req-mark">*</span></div>
+        <span class="err-msg" id="err-iw-date">Date is required</span>
+      </div>
+      <div class="fgr">
+        <div class="fl">Invoice Ref No.<span class="req-mark">*</span></div>
         <input id="iw-inv" placeholder="e.g. 8408197265" oninput="validateField('iw-inv')">
-        <span class="err-msg" id="err-iw-inv">Invoice reference is required</span></div>
+        <span class="err-msg" id="err-iw-inv">Invoice reference is required</span>
+      </div>
       <div class="fgr"><div class="fl">Vehicle No. / DC No.</div><input id="iw-veh" placeholder="e.g. MH-04-ZZ-1234"></div>
-      <div class="fgr"><div class="fl">Received By<span class="req-mark">*</span></div>
+      <div class="fgr">
+        <div class="fl">Received By<span class="req-mark">*</span></div>
         <input id="iw-recby" placeholder="Storekeeper name" oninput="validateField('iw-recby')">
-        <span class="err-msg" id="err-iw-recby">Enter name of receiver</span></div>
-      <div class="fgr"><div class="fl">Credit Note Ref</div><input id="iw-credit" placeholder="Credit note reference (if any)"></div>
+        <span class="err-msg" id="err-iw-recby">Enter name of receiver</span>
+      </div>
+      <div class="fgr"><div class="fl">Credit Note Ref</div><input id="iw-credit" placeholder="Credit note ref (if any)"></div>
       <div class="fgr full"><div class="fl">Quality / Remarks</div><textarea id="iw-remarks" placeholder="Damage, short supply, quality issues…" style="min-height:50px"></textarea></div>
     </div>
-    <div id="iw-items" style="margin-top:14px"></div>
+
+    <div id="iw-pl-section" style="display:none;margin-top:14px">
+      <div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-lbl">Select PL Number to Record</span><div class="sdiv-line"></div></div>
+      <div class="fgr" style="margin-bottom:14px">
+        <div class="fl">PL Number<span class="req-mark">*</span></div>
+        <select id="iw-pl-select" onchange="loadSelectedPL()"><option value="">-- Select PL Number --</option></select>
+      </div>
+    </div>
+    <div id="iw-items" style="margin-top:4px"></div>
+
     <div class="fa">
       <button class="btn btn-ghost" onclick="closeModal('mInward')">Cancel</button>
-      <button class="btn btn-green" onclick="submitInward()">Save GRN & Update Stock →</button>
+      <button class="btn btn-green" onclick="submitInward()">Save Inward & Update Stock →</button>
     </div>
   </div>
 </div>
@@ -914,6 +968,104 @@ select option{background:var(--bg3);color:var(--text)}
 </div>
 </div>
 
+<!-- DEMAND NOTE MODAL -->
+<div class="overlay" id="mDemand">
+<div class="modal modal-md">
+  <div class="mh">
+    <h2>New Demand Note <span class="own own-qs">Site Engineer</span></h2>
+    <button class="mc" onclick="closeModal('mDemand')">×</button>
+  </div>
+  <div class="mb">
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+      <img src="https://goodearth.org.in/wp-content/uploads/2023/05/goodearth-logo-colored.svg" style="height:20px" onerror="this.style.display='none'">
+      <span style="font-size:11px;font-weight:700;color:var(--text2)">GoodEarth — DEMAND NOTE</span>
+      <span style="margin-left:auto;font-size:11px;color:var(--text3)">Stage: <strong style="color:var(--amber)" id="dn-stage-preview">—</strong></span>
+    </div>
+    <div class="fg">
+      <div class="fgr">
+        <div class="fl">Stage No.<span class="req-mark">*</span></div>
+        <input id="dn-stage" placeholder="e.g. 882" oninput="this.value&&(document.getElementById('dn-stage-preview').textContent=this.value);validateField('dn-stage')">
+        <span class="err-msg" id="err-dn-stage">Stage number is required</span>
+      </div>
+      <div class="fgr">
+        <div class="fl">Date<span class="req-mark">*</span></div>
+        <input id="dn-date" type="date" onchange="validateField('dn-date')">
+        <span class="err-msg" id="err-dn-date">Date is required</span>
+      </div>
+      <div class="fgr">
+        <div class="fl">Project<span class="req-mark">*</span></div>
+        <select id="dn-proj" onchange="validateField('dn-proj')">
+          <option value="">-- Select Project --</option>
+          <option>[44]Motif Town Houses</option><option>[01]Al Barsha Residences</option>
+          <option>[02]Downtown Commercial Tower</option><option>[03]Marina Heights</option>
+          <option>[05]Greenfield Township</option><option>[06]Smart City Phase 1</option>
+        </select>
+        <span class="err-msg" id="err-dn-proj">Project is required</span>
+      </div>
+      <div class="fgr">
+        <div class="fl">Location<span class="req-mark">*</span></div>
+        <input id="dn-loc" placeholder="e.g. P-18" oninput="validateField('dn-loc')">
+        <span class="err-msg" id="err-dn-loc">Location is required</span>
+      </div>
+      <div class="fgr">
+        <div class="fl">Contractor<span class="req-mark">*</span></div>
+        <input id="dn-cont" placeholder="Contractor name" oninput="validateField('dn-cont')">
+        <span class="err-msg" id="err-dn-cont">Contractor name is required</span>
+      </div>
+      <div class="fgr">
+        <div class="fl">Nature of Work</div>
+        <input id="dn-work" placeholder="e.g. Flooring Work">
+      </div>
+    </div>
+    <div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-lbl">Material Particulars</span><div class="sdiv-line"></div></div>
+    <div class="mat-tbl">
+      <div class="mth" style="grid-template-columns:40px 1fr 80px 90px 32px">
+        <span class="c-qs-h">Sl No</span>
+        <span class="c-qs-h">Particulars (Material)</span>
+        <span class="c-qs-h">Unit</span>
+        <span class="c-qs-h">Qty Required</span>
+        <span></span>
+      </div>
+      <div id="dn-rows"></div>
+      <button class="add-mr" onclick="addDNRow()">+ Add Row</button>
+    </div>
+    <div class="fg" style="margin-top:14px">
+      <div class="fgr">
+        <div class="fl">Requested By<span class="req-mark">*</span></div>
+        <input id="dn-reqby" placeholder="Site Engineer name" oninput="validateField('dn-reqby')">
+        <span class="err-msg" id="err-dn-reqby">Required</span>
+      </div>
+      <div class="fgr">
+        <div class="fl">CM Name</div>
+        <input id="dn-cm" placeholder="Construction Manager name">
+      </div>
+    </div>
+    <div class="fa">
+      <button class="btn btn-ghost" onclick="closeModal('mDemand')">Cancel</button>
+      <button class="btn btn-amber" onclick="submitDemand()">Submit Demand Note →</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- PO PM APPROVAL MODAL -->
+<div class="overlay" id="mPOApprove">
+<div class="modal modal-sm">
+  <div class="mh"><h2>PO — PM Approval <span class="own own-pm">PM</span></h2><button class="mc" onclick="closeModal('mPOApprove')">×</button></div>
+  <div class="mb" id="poapprove-body">
+    <div class="action-box">
+      <div class="ab-title">Review & Approve Purchase Order</div>
+      <div id="poapprove-summary" style="margin-bottom:12px;font-size:13px;color:var(--text2)"></div>
+      <textarea id="poapprove-note" placeholder="Add approval note (optional)…" style="margin-bottom:12px;min-height:60px"></textarea>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-green" onclick="approvePO()">✓ Approve & Send to Vendor</button>
+        <button class="btn btn-rose" onclick="rejectPO()">✗ Reject PO</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -953,7 +1105,7 @@ function loadData(){
 
 function saveData(){
   try{
-    localStorage.setItem(LS_KEY, JSON.stringify({vendors,indents,pos,inwards,stock,issues,_saved:new Date().toISOString()}));
+    localStorage.setItem(LS_KEY, JSON.stringify({vendors,indents,pos,inwards,stock,issues,demands,_saved:new Date().toISOString()}));
     document.getElementById('storageStatus').textContent = '💾 Saved ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   } catch(e){ console.warn('Save failed',e); }
 }
@@ -961,7 +1113,7 @@ function saveData(){
 // ═══════════════════════════════════════════════════════
 // SEED / LOAD DATA
 // ═══════════════════════════════════════════════════════
-let vendors, indents, pos, inwards, stock, issues;
+let vendors, indents, pos, inwards, stock, issues, demands;
 
 function initData(){
   const saved = loadData();
@@ -972,9 +1124,10 @@ function initData(){
     inwards = saved.inwards || [];
     stock = saved.stock || [];
     issues = saved.issues || [];
+    demands = saved.demands || [];
     return;
   }
-  // Fresh seed data matching civil team template
+  demands = [];  // Fresh seed data matching civil team template
   vendors = [
     {id:'V001',name:'Ultra Tech Cement Limited',con:'Rajesh Sharma',ph:'+91 98765 43210',cat:'Cement & Concrete',gst:'27ABCDE1234F1Z5',terms:'30 days',addr:'Plot 12, MIDC, Thane'},
     {id:'V002',name:'BhumiSteel Traders Pvt Ltd',con:'Amit Verma',ph:'+91 90123 45678',cat:'Steel & Metals',gst:'27FGHIJ5678G1Z6',terms:'45 days',addr:'MIDC Phase 2, Navi Mumbai'},
@@ -1017,13 +1170,13 @@ function initData(){
         {role:'QS',action:'Raised',note:'Indent submitted',date:'2026-04-05'},
         {role:'PM',action:'Approved',note:'Approved. Required by 28 Apr.',date:'2026-04-06'},
         {role:'COMM',action:'PO Raised',note:'PO-2026-038 issued to Ultra Tech',date:'2026-04-07'},
-        {role:'STORE',action:'Inward Complete',note:'GRN-001 done. Stock updated.',date:'2026-04-10'},
+        {role:'STORE',action:'Inward Complete',note:'Inward-001 recorded. Stock updated.',date:'2026-04-10'},
       ]
     },
   ];
   pos = [
-    {id:'PO-2026-041',indRef:'IND-001',vendId:'V001',date:'2026-04-09',delDate:'2026-04-15',addr:'Site Store, Plot 5',payTerms:'30 days credit',delTerms:'FOR Site',notes:'Urgent',value:333000,status:'sent',iwStatus:'Awaiting'},
-    {id:'PO-2026-038',indRef:'IND-003',vendId:'V001',date:'2026-04-07',delDate:'2026-04-10',addr:'Site Store, Plot 5',payTerms:'On delivery',delTerms:'FOR Site',notes:'',value:29500,status:'closed',iwStatus:'Full GRN'},
+    {id:'PO-2026-041',indRef:'IND-001',vendId:'V001',date:'2026-04-09',delDate:'2026-04-15',addr:'Site Store, Plot 5',payTerms:'30 days credit',delTerms:'FOR Site',notes:'Urgent',value:333000,status:'pending_pm',pmApproved:null,iwStatus:'Awaiting',proj:'[44]Motif Town Houses',indNo:'Indent No:01',gstin:'29AACCG9723F1ZG',lines:[{itemNo:1,code:'CVL/A/133',desc:'Cement OPC 43 Grade',unit:'Bags',qty:1000,rate:333,amount:333000}],subtotal:333000,gstPct:0,gstAmt:0,prepBy:'Mahesh S',signBy:'Sandeep M',desig:'Project Manager',conditions:'1. Material will be accepted only as per the description in the PO\n2. Tax invoice with PO number required\n3. Test certificates to accompany material\n4. Excess material is supplier responsibility.',note:'No Deliveries Permitted on site Beyond 5.00 PM and On Holidays'},
+    {id:'PO-2026-038',indRef:'IND-003',vendId:'V001',date:'2026-04-07',delDate:'2026-04-10',addr:'Site Store, Plot 5',payTerms:'On delivery',delTerms:'FOR Site',notes:'',value:29500,status:'closed',iwStatus:'Full Inward'},
   ];
   inwards = [
     {id:'GRN-001',poRef:'PO-2026-038',vendId:'V001',date:'2026-04-10',invRef:'8408197265',vehicle:'MH-04-ZZ-5678',recBy:'Mohan (Storekeeper)',remarks:'All received in good condition.',
@@ -1045,6 +1198,7 @@ function initData(){
     {id:'ISS-001',docNo:'2028',pl:'PL-06',indRef:'IND-003',cat:'[08]Plumbing Materials',code:'PLB/A/001',material:'UPVC Pipe 110mm',qty:3,unit:'Pcs',proj:'[44]Motif Town Houses',loc:'M-69',purpose:'For block work',contractor:'Azad Alam',engineer:'Sushwin',date:'2026-04-11',remarks:''},
     {id:'ISS-002',docNo:'2029',pl:'PL-07',indRef:'IND-003',cat:'[08]Plumbing Materials',code:'PLB/A/002',material:'PVC Elbow 90°',qty:2,unit:'Pcs',proj:'[44]Motif Town Houses',loc:'M-69',purpose:'For drainage',contractor:'Azad Alam',engineer:'Sushwin',date:'2026-04-12',remarks:''},
   ];
+  demands=[];
   saveData();
 }
 
@@ -1052,8 +1206,8 @@ function initData(){
 // ROLE & NAV
 // ═══════════════════════════════════════════════════════
 let role = 'QS';
-let filters = {indents:'all',po:'all',stock:'all'};
-let searches = {indents:'',po:'',inward:'',stock:''};
+let filters = {indents:'all',po:'all',stock:'all',demand:'all'};
+let searches = {indents:'',po:'',inward:'',stock:'',demand:''};
 let irIds = [], irSeq = 0, plSeq = 10;
 
 function changeRole(r){ role=r; renderAll(); toast('Role: '+STAGES[r],'amber'); }
@@ -1071,24 +1225,32 @@ function render(p){
   if(p==='indents') renderIndents();
   if(p==='po') renderPO();
   if(p==='vendors') renderVendors();
+  if(p==='demand') renderDemand();
   if(p==='inward') renderInward();
   if(p==='stock') renderStock();
   if(p==='issues') renderIssues();
+  if(p==='issueconfirm') renderIssueConfirm();
   updateBadges();
 }
+
 function renderAll(){ render(activePage()); updateBadges(); }
 function activePage(){ return document.querySelector('.page.active')?.id.replace('page-','')||'dashboard'; }
 
 function updateBadges(){
   const pi = indents.filter(i=>i.status==='pending').length;
-  const pp = pos.filter(p=>p.status==='draft'||p.status==='sent').length;
+  const pp = pos.filter(p=>p.status==='pending_pm'||p.status==='draft').length;
   const piw = inwards.length;
   const ls = stock.filter(s=>stockQty(s)<=0).length;
+  const pd = (demands||[]).filter(d=>d.status==='pending').length;
+  const pisc = issues.filter(i=>!i.storeConfirmed).length;
   document.getElementById('b-ind').textContent=pi;
   document.getElementById('b-po').textContent=pp;
   document.getElementById('b-iw').textContent=piw;
   document.getElementById('b-stk').textContent=ls;
+  const bd=document.getElementById('b-dem'); if(bd) bd.textContent=pd;
+  const bisc=document.getElementById('b-isc'); if(bisc) bisc.textContent=pisc;
 }
+
 
 // ═══════════════════════════════════════════════════════
 // HELPERS
@@ -1096,8 +1258,8 @@ function updateBadges(){
 function stockQty(s){ return (s.inwardQty||0)-(s.issueQty||0); }
 
 function sChip(s){
-  const m={pending:'c-pend',approved:'c-appr',rejected:'c-rej',completed:'c-done',sent:'c-sent',draft:'c-draft',closed:'c-done',partial:'c-part'};
-  const lbl={pending:'Pending',approved:'Approved',rejected:'Rejected',completed:'Completed',sent:'Sent',draft:'Draft',closed:'Closed',partial:'Partial GRN'};
+  const m={pending:'c-pend',pending_pm:'c-pend',approved:'c-appr',rejected:'c-rej',completed:'c-done',sent:'c-sent',draft:'c-draft',closed:'c-done',partial:'c-part',acknowledged:'c-appr',issued:'c-sent'};
+  const lbl={pending:'Pending',pending_pm:'Pending PM',approved:'Approved',rejected:'Rejected',completed:'Completed',sent:'Sent to Vendor',draft:'Draft',closed:'Closed',partial:'Partial',acknowledged:'Acknowledged',issued:'Issued'};
   return `<span class="chip ${m[s]||'c-draft'}"><span class="cd"></span>${lbl[s]||s}</span>`;
 }
 
@@ -1145,25 +1307,34 @@ function renderDash(){
     </div>`).join(''):'<div style="text-align:center;padding:18px;color:var(--text3);font-size:12px">✅ No active pipelines</div>';
 
   let actions=[];
-  if(role==='PM') actions=indents.filter(i=>i.status==='pending'&&i.stage==='PM');
-  else if(role==='COMM') actions=indents.filter(i=>i.status==='approved'&&i.stage==='COMM'&&!i.poNo);
-  else if(role==='STORE') actions=pos.filter(p=>p.status==='sent'&&p.iwStatus==='Awaiting');
+  if(role==='PM'){
+    const indentActions=indents.filter(i=>i.status==='pending'&&i.stage==='PM');
+    const poActions=pos.filter(p=>p.status==='pending_pm'&&p.pmApproved!=='approved'&&p.pmApproved!=='rejected');
+    actions=[...indentActions,...poActions];
+  } else if(role==='COMM') actions=indents.filter(i=>i.status==='approved'&&i.stage==='COMM'&&!i.poNo);
+  else if(role==='STORE'){
+    const inwardActions=pos.filter(p=>p.status==='sent'&&p.iwStatus==='Awaiting');
+    const demandActions=demands.filter(d=>d.status==='pending');
+    actions=[...inwardActions,...demandActions];
+  }
   document.getElementById('d-pending').innerHTML=actions.length?actions.map(a=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bg3);gap:6px;flex-wrap:wrap">
       <div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber)">${a.id||a.indNo}</div>
         <div style="font-size:11.5px;color:var(--text2);margin-top:2px">${a.proj||('PO: '+a.id)}</div>
       </div>
-      <div style="display:flex;gap:5px">
-        ${role==='PM'?`<button class="btn btn-green btn-xs" onclick="approveIndent('${a.id}','')">✓ Approve</button><button class="btn btn-rose btn-xs" onclick="rejectIndent('${a.id}','')">✗ Reject</button>`:
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        ${role==='PM'&&a.stage==='PM'?`<button class="btn btn-green btn-xs" onclick="approveIndent('${a.id}','')">✓ Indent</button><button class="btn btn-rose btn-xs" onclick="rejectIndent('${a.id}','')">✗</button>`:
+          role==='PM'&&a.status==='pending_pm'?`<button class="btn btn-blue btn-xs" onclick="openPOApproveModal('${a.id}')">Review PO</button>`:
           role==='COMM'?`<button class="btn btn-teal btn-xs" onclick="openModal('mPO')">Create PO</button>`:
+          a.stageNo?`<button class="btn btn-amber btn-xs" onclick="openDemandDetail('${a.id}')">View DN</button>`:
           `<button class="btn btn-green btn-xs" onclick="openModal('mInward')">Record Inward</button>`}
       </div>
     </div>`).join(''):`<div style="text-align:center;padding:18px;color:var(--text3);font-size:12px">✅ No pending actions for ${STAGES[role]}</div>`;
 
   let acts=[];
   indents.forEach(i=>i.history.forEach(h=>acts.push({...h,ref:i.indNo,desc:i.proj})));
-  inwards.forEach(g=>acts.push({role:'STORE',action:'Inward Recorded',note:g.id+' | Invoice: '+g.invRef,date:g.date,ref:g.poRef,desc:'GRN'}));
+  inwards.forEach(g=>acts.push({role:'STORE',action:'Inward Recorded',note:g.id+' | Invoice: '+g.invRef,date:g.date,ref:g.poRef,desc:'Inward'}));
   acts.sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById('d-activity').innerHTML=acts.slice(0,10).map(a=>{
     const c=colorMap(a.role);
@@ -1180,14 +1351,21 @@ function renderIndents(){
   let data=[...indents].reverse();
   if(filters.indents!=='all') data=data.filter(i=>i.status===filters.indents);
   if(searches.indents) data=data.filter(i=>i.indNo.toLowerCase().includes(searches.indents)||i.proj.toLowerCase().includes(searches.indents)||i.items.some(m=>m.pl.toLowerCase().includes(searches.indents)||m.item.toLowerCase().includes(searches.indents)));
-  document.getElementById('tbl-indents').innerHTML=data.length?data.map(i=>{
+  let sl=data.length;
+  document.getElementById('tbl-indents').innerHTML=data.length?data.map((i,idx)=>{
     const pls=i.items.map(m=>`<span class="pl-tag">${m.pl}</span>`).join(' ');
+    const cats=[...new Set(i.items.map(m=>m.category||'').filter(Boolean))].map(c=>c.split(']')[1]||c).join(', ')||'—';
+    const purposes=[...new Set(i.items.map(m=>m.purpose||'').filter(Boolean))].join('; ')||'—';
+    const prMonth=i.date?i.date.substring(0,7):'—';
     return `<tr>
-      <td class="mono">${i.indNo}</td><td class="mono">${i.date}</td>
-      <td style="font-size:12px">${i.proj}</td><td style="min-width:120px">${pls}</td>
-      <td><span style="font-size:11px;font-weight:700;color:var(--amber)">QS</span></td>
-      <td class="mono" style="color:var(--blue)">${i.reqDate||'—'}</td>
-      <td class="mono" style="color:var(--teal)">${i.poNo||'—'}</td>
+      <td class="mono">${sl-idx}</td>
+      <td class="mono">${i.date}</td>
+      <td class="mono" style="color:var(--text3)">${prMonth}</td>
+      <td style="min-width:120px">${pls}</td>
+      <td class="mono">${i.indNo}</td>
+      <td style="font-size:11px;color:var(--text2)">${cats}</td>
+      <td style="font-size:12px">${i.proj}</td>
+      <td style="font-size:11.5px;color:var(--text3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${purposes}">${purposes}</td>
       <td><div class="pf" style="gap:2px">${pipeHtml(i,true)}</div></td>
       <td>${sChip(i.status)}</td>
       <td><div style="display:flex;gap:4px;flex-wrap:wrap">
@@ -1195,7 +1373,7 @@ function renderIndents(){
         ${i.status==='pending'&&i.stage===role?`<button class="btn btn-green btn-xs" onclick="approveIndent('${i.id}','')">✓</button><button class="btn btn-rose btn-xs" onclick="rejectIndent('${i.id}','')">✗</button>`:''}
       </div></td>
     </tr>`;
-  }).join(''):'<tr><td colspan="10" style="text-align:center;padding:38px;color:var(--text3)">No indents found</td></tr>';
+  }).join(''):'<tr><td colspan="11" style="text-align:center;padding:38px;color:var(--text3)">No indents found</td></tr>';
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1209,18 +1387,24 @@ function renderPO(){
     const v=findVend(p.vendId);
     const ind=indents.find(i=>i.id===p.indRef);
     const iw=p.iwStatus||'Awaiting';
-    const iwCls=iw==='Full GRN'?'c-appr':iw==='Partial GRN'?'c-part':'c-pend';
+    const iwCls=iw==='Full Inward'?'c-appr':iw==='Partial Inward'?'c-part':'c-pend';
+    const pmAppr=p.pmApproved==='approved'?'<span class="chip c-appr"><span class="cd"></span>Approved</span>':
+                 p.pmApproved==='rejected'?'<span class="chip c-rej"><span class="cd"></span>Rejected</span>':
+                 '<span class="chip c-pend"><span class="cd"></span>Pending PM</span>';
+    const canPMApprove=role==='PM'&&p.pmApproved!=='approved'&&p.pmApproved!=='rejected'&&p.status==='pending_pm';
     return `<tr>
       <td class="mono" style="color:var(--teal);font-weight:700">${p.id}</td>
-      <td class="mono">${p.indRef||'—'}</td><td style="font-size:12px">${v?.name||'—'}</td>
       <td class="mono">${p.date}</td>
+      <td class="mono">${p.indRef||'—'}</td>
+      <td style="font-size:12px">${p.proj||ind?.proj||'—'}</td>
+      <td style="font-size:12px">${v?.name||'—'}</td>
       <td style="font-family:'JetBrains Mono',monospace;font-weight:700">₹${(p.value||0).toLocaleString('en-IN')}</td>
-      <td class="mono" style="color:var(--blue)">${ind?.reqDate||'—'}</td>
+      <td style="min-width:130px">${pmAppr}${canPMApprove?` <button class="btn btn-blue btn-xs" style="margin-top:4px;display:block" onclick="openPOApproveModal('${p.id}')">Take Action</button>`:''}</td>
       <td><span class="chip ${iwCls}"><span class="cd"></span>${iw}</span></td>
       <td>${sChip(p.status)}</td>
       <td><button class="btn btn-ghost btn-xs" onclick="openPODetail('${p.id}')">View</button></td>
     </tr>`;
-  }).join(''):'<tr><td colspan="9" style="text-align:center;padding:38px;color:var(--text3)">No POs found</td></tr>';
+  }).join(''):'<tr><td colspan="10" style="text-align:center;padding:38px;color:var(--text3)">No POs found</td></tr>';
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1243,18 +1427,25 @@ function renderVendors(){
 // ═══════════════════════════════════════════════════════
 function renderInward(){
   let data=[...inwards].reverse();
-  if(searches.inward) data=data.filter(g=>g.id.toLowerCase().includes(searches.inward)||g.poRef.toLowerCase().includes(searches.inward)||g.items.some(i=>i.pl.toLowerCase().includes(searches.inward)));
-  document.getElementById('tbl-inward').innerHTML=data.length?data.map(g=>{
+  if(searches.inward) data=data.filter(g=>g.id.toLowerCase().includes(searches.inward)||g.poRef.toLowerCase().includes(searches.inward)||g.items.some(i=>(i.pl||'').toLowerCase().includes(searches.inward)));
+  let sl=data.length;
+  document.getElementById('tbl-inward').innerHTML=data.length?data.map((g,idx)=>{
+    const p=pos.find(x=>x.id===g.poRef);
+    const ind=p?indents.find(x=>x.id===p.indRef):null;
     const v=findVend(g.vendId);
     const disc=g.items.some(i=>i.recQty<i.poQty);
-    const pls=[...new Set(g.items.map(i=>i.pl))].map(p=>`<span class="pl-tag">${p}</span>`).join(' ');
+    const pls=[...new Set(g.items.map(i=>i.pl||'').filter(Boolean))].map(p=>`<span class="pl-tag">${p}</span>`).join(' ');
     return `<tr>
-      <td class="mono">${g.id}</td><td class="mono">${g.poRef}</td><td>${pls}</td>
+      <td class="mono">${sl-idx}</td>
+      <td style="font-size:12px">${ind?.proj||p?.proj||'—'}</td>
+      <td class="mono">${g.date}</td>
       <td style="font-size:12px">${v?.name||'—'}</td>
-      <td class="mono">${g.invRef||'—'}</td><td class="mono">${g.date}</td>
-      <td>${g.recBy}</td><td>${g.items.length} item(s)</td>
+      <td class="mono">${g.invRef||'—'}</td>
+      <td>${pls}</td>
+      <td class="mono" style="color:var(--text2)">${ind?.indNo||'—'}</td>
+      <td>${g.recBy}</td>
       <td>${disc?'<span class="chip c-part"><span class="cd"></span>Short</span>':'<span class="chip c-appr"><span class="cd"></span>Full</span>'}</td>
-      <td><button class="btn btn-ghost btn-xs" onclick="openGRNDetail('${g.id}')">View</button></td>
+      <td><button class="btn btn-ghost btn-xs" onclick="openInwardDetail('${g.id}')">View</button></td>
     </tr>`;
   }).join(''):'<tr><td colspan="10" style="text-align:center;padding:38px;color:var(--text3)">No inward records yet</td></tr>';
 }
@@ -1303,18 +1494,22 @@ function renderStock(){
 function renderIssues(){
   document.getElementById('tbl-issues').innerHTML=[...issues].reverse().length?[...issues].reverse().map(i=>`
     <tr>
-      <td class="mono">${i.docNo||i.id}</td><td><span class="pl-tag">${i.pl||'—'}</span></td>
-      <td class="mono">${i.indRef||'—'}</td>
+      <td class="mono">${i.date}</td>
+      <td class="mono" style="color:var(--text3)">${i.date?i.date.substring(0,7):'—'}</td>
       <td style="font-size:11px">${i.cat||'—'}</td>
       <td class="mono">${i.code||'—'}</td>
       <td style="font-weight:500">${i.material}</td>
       <td style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--amber)">${i.qty}</td>
-      <td>${i.unit}</td><td style="font-size:11.5px">${i.proj||'—'}</td>
+      <td>${i.unit}</td>
+      <td class="mono">${i.docNo||i.id}</td>
+      <td style="font-size:11.5px">${i.proj||'—'}</td>
       <td class="mono">${i.loc||'—'}</td>
       <td style="font-size:11.5px">${i.purpose||'—'}</td>
-      <td>${i.contractor||'—'}</td><td>${i.engineer||'—'}</td>
-      <td class="mono">${i.date}</td>
-    </tr>`).join(''):'<tr><td colspan="14" style="text-align:center;padding:38px;color:var(--text3)">No issues recorded</td></tr>';
+      <td>${i.contractor||'—'}</td>
+      <td>${i.engineer||'—'}</td>
+      <td style="font-size:11.5px;color:var(--text3)">${i.remarks||'—'}</td>
+      <td class="mono">${i.stageCode||'—'}</td>
+    </tr>`).join(''):'<tr><td colspan="15" style="text-align:center;padding:38px;color:var(--text3)">No issues recorded</td></tr>';
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1325,11 +1520,11 @@ function addIR(){
   const pl='PL-'+String(++plSeq).padStart(2,'0');
   const div=document.createElement('div');
   div.className='mr'; div.id='ir-'+id;
+  div.style.gridTemplateColumns='70px 80px 1fr 70px 70px 80px 85px 130px 32px';
   const catOpts=MAT_CATS.map(c=>`<option>${c}</option>`).join('');
   const unitOpts=UNITS.map(u=>`<option>${u}</option>`).join('');
   div.innerHTML=`
     <input id="ir-pl-${id}" value="${pl}" placeholder="PL-XX">
-    <input id="ir-in-${id}" placeholder="Indent No:01">
     <input id="ir-mc-${id}" placeholder="CVL/A/133">
     <input id="ir-mn-${id}" placeholder="Type material name">
     <select id="ir-un-${id}">${unitOpts}</select>
@@ -1337,10 +1532,14 @@ function addIR(){
     <input id="ir-rt-${id}" type="number" min="0" placeholder="0" class="rate-field" oninput="calcAmt(${id})">
     <input id="ir-am-${id}" readonly placeholder="Auto" title="Qty × Rate">
     <select id="ir-cat-${id}">${catOpts}</select>
-    <button class="rm-btn" onclick="rmIR(${id})">×</button>
   `;
+  const rb=document.createElement('button');
+  rb.className='rm-btn'; rb.textContent='×';
+  rb.onclick=()=>rmIR(id);
+  div.appendChild(rb);
   document.getElementById('indent-rows').appendChild(div);
 }
+
 function rmIR(id){ document.getElementById('ir-'+id)?.remove(); irIds=irIds.filter(x=>x!==id); }
 function calcAmt(id){
   const q=parseFloat(document.getElementById('ir-qt-'+id)?.value)||0;
@@ -1351,7 +1550,6 @@ function calcAmt(id){
 function getIRs(){
   return irIds.map(id=>({
     pl:document.getElementById('ir-pl-'+id)?.value||'',
-    indentNo:document.getElementById('ir-in-'+id)?.value||'',
     mrCode:document.getElementById('ir-mc-'+id)?.value||'',
     item:document.getElementById('ir-mn-'+id)?.value||'',
     unit:document.getElementById('ir-un-'+id)?.value||'Pcs',
@@ -1375,10 +1573,10 @@ function submitIndent(){
   const items=getIRs();
   const id='IND-'+String(indents.length+1).padStart(3,'0');
   indents.push({
-    id,indNo,proj,wob:document.getElementById('fi-wob').value,
+    id,indNo,proj,wob:'',
     raisedBy:role,date:document.getElementById('fi-date').value||TODAY,
-    reqDate:document.getElementById('fi-reqdate').value,
-    poNo:document.getElementById('fi-pono').value,
+    reqDate:'',
+    poNo:'',
     items,stage:'PM',status:'pending',
     history:[{role,action:'Raised',note:'Indent submitted by QS',date:TODAY}]
   });
@@ -1396,6 +1594,312 @@ function submitIndent(){
   saveData(); renderAll();
   toast(`${indNo} submitted → PM for approval`,'amber');
 }
+
+// ═══════════════════════════════════════════════════════
+// PO PM APPROVAL
+// ═══════════════════════════════════════════════════════
+let _currentPOApproveId = null;
+
+function openPOApproveModal(poId){
+  _currentPOApproveId = poId;
+  const p=pos.find(x=>x.id===poId); if(!p) return;
+  const v=findVend(p.vendId);
+  document.getElementById('poapprove-summary').innerHTML=`
+    <div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:12.5px">
+      <div style="margin-bottom:5px"><strong style="color:var(--teal)">${p.id}</strong> — ${p.proj||'—'}</div>
+      <div style="margin-bottom:5px">Vendor: <strong>${v?.name||'—'}</strong></div>
+      <div style="margin-bottom:5px">Value: <strong style="color:var(--green)">₹${(p.value||0).toLocaleString('en-IN')}</strong></div>
+      <div>Date: ${p.date} | Payment: ${p.payTerms}</div>
+    </div>`;
+  document.getElementById('poapprove-note').value='';
+  openModal('mPOApprove');
+}
+
+function approvePO(){
+  const p=pos.find(x=>x.id===_currentPOApproveId); if(!p) return;
+  const note=document.getElementById('poapprove-note').value||'Approved by PM';
+  p.pmApproved='approved';
+  p.status='sent';
+  p.pmNote=note;
+  p.pmApprovedDate=TODAY;
+  const ind=indents.find(x=>x.id===p.indRef);
+  if(ind) ind.history.push({role:'PM',action:'PO Approved',note:'PO '+p.id+' approved. '+note,date:TODAY});
+  closeModal('mPOApprove');
+  saveData(); renderAll();
+  // Show email sent popup (demo)
+  showEmailSentPopup(p);
+}
+
+function rejectPO(){
+  const p=pos.find(x=>x.id===_currentPOApproveId); if(!p) return;
+  const note=document.getElementById('poapprove-note').value||'Rejected by PM';
+  p.pmApproved='rejected';
+  p.status='rejected';
+  p.pmNote=note;
+  const ind=indents.find(x=>x.id===p.indRef);
+  if(ind) ind.history.push({role:'PM',action:'PO Rejected',note:'PO '+p.id+' rejected. '+note,date:TODAY});
+  closeModal('mPOApprove');
+  saveData(); renderAll();
+  toast('PO '+p.id+' rejected','rose');
+}
+
+function showEmailSentPopup(p){
+  const v=findVend(p.vendId);
+  const div=document.createElement('div');
+  div.className='overlay open';
+  div.id='email-popup';
+  div.innerHTML=`<div class="modal modal-sm" style="max-width:420px">
+    <div class="mh"><h2>📧 Email Notification</h2><button class="mc" onclick="document.getElementById('email-popup').remove()">×</button></div>
+    <div class="mb">
+      <div style="background:var(--green-lt);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:16px;margin-bottom:14px;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">✅</div>
+        <div style="font-size:14px;font-weight:700;color:var(--green)">Email Sent Successfully</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">(Demo — in production this sends a real email)</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:12.5px">
+        <div style="margin-bottom:6px"><span style="color:var(--text3)">To:</span> <strong>${v?.name||'Vendor'}</strong> &lt;${v?.email||'vendor@example.com'}&gt;</div>
+        <div style="margin-bottom:6px"><span style="color:var(--text3)">Subject:</span> Purchase Order ${p.id} — ${p.proj||'Project'}</div>
+        <div style="margin-bottom:6px"><span style="color:var(--text3)">PO Value:</span> ₹${(p.value||0).toLocaleString('en-IN')}</div>
+        <div style="margin-bottom:6px"><span style="color:var(--text3)">Approved by:</span> Project Manager</div>
+        <div style="color:var(--text3);font-size:11.5px;margin-top:8px">Message: "Please find attached the Purchase Order ${p.id}. Kindly confirm receipt and arrange delivery as per the terms mentioned."</div>
+      </div>
+      <div class="fa"><button class="btn btn-green" onclick="document.getElementById('email-popup').remove()">OK</button></div>
+    </div>
+  </div>`;
+  document.body.appendChild(div);
+  div.addEventListener('click', e=>{if(e.target===div) div.remove();});
+  toast('PO '+p.id+' approved & email sent to vendor','green');
+}
+
+// ═══════════════════════════════════════════════════════
+// DEMAND NOTES
+// ═══════════════════════════════════════════════════════
+let dnRowIds=[], dnRowSeq=0;
+
+function addDNRow(){
+  const id=++dnRowSeq; dnRowIds.push(id);
+  const div=document.createElement('div');
+  div.className='mr'; div.id='dn-row-'+id;
+  div.style.gridTemplateColumns='40px 1fr 80px 90px 32px';
+  div.innerHTML=`<input value="${dnRowIds.length}" readonly style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px">
+    <input id="dn-p-${id}" placeholder="Material / particular">
+    <input id="dn-u-${id}" placeholder="Nos/MT/Bags">
+    <input id="dn-q-${id}" type="number" min="0" placeholder="0">`;
+  const rb=document.createElement('button');
+  rb.className='rm-btn'; rb.textContent='×';
+  rb.onclick=()=>{div.remove(); dnRowIds=dnRowIds.filter(x=>x!==id);};
+  div.appendChild(rb);
+  document.getElementById('dn-rows').appendChild(div);
+}
+
+function submitDemand(){
+  if(!validateField('dn-stage')||!validateField('dn-date')||!validateField('dn-proj')||!validateField('dn-loc')||!validateField('dn-cont')||!validateField('dn-reqby')){return;}
+  const items=dnRowIds.map(id=>({
+    particular:document.getElementById('dn-p-'+id)?.value||'',
+    unit:document.getElementById('dn-u-'+id)?.value||'',
+    qtyRequired:parseFloat(document.getElementById('dn-q-'+id)?.value)||0
+  })).filter(r=>r.particular.trim());
+  if(!items.length){toast('Add at least one material row','rose');return;}
+  const id='DN-'+String(demands.length+1).padStart(3,'0');
+  demands.push({
+    id, stageNo:document.getElementById('dn-stage').value,
+    date:document.getElementById('dn-date').value||TODAY,
+    proj:document.getElementById('dn-proj').value,
+    loc:document.getElementById('dn-loc').value,
+    contractor:document.getElementById('dn-cont').value,
+    natureOfWork:document.getElementById('dn-work').value,
+    requestedBy:document.getElementById('dn-reqby').value,
+    cmName:document.getElementById('dn-cm').value,
+    items, status:'pending',
+    notedBy:'', storeDeptSign:''
+  });
+  closeModal('mDemand');
+  document.getElementById('dn-rows').innerHTML=''; dnRowIds=[]; dnRowSeq=0;
+  saveData(); renderAll();
+  toast(id+' demand note submitted','amber');
+}
+
+function renderDemand(){
+  let data=[...demands].reverse();
+  if(filters.demand&&filters.demand!=='all') data=data.filter(d=>d.status===filters.demand);
+  if(searches.demand) data=data.filter(d=>d.stageNo.includes(searches.demand)||d.proj.toLowerCase().includes(searches.demand)||d.contractor.toLowerCase().includes(searches.demand));
+  document.getElementById('tbl-demand').innerHTML=data.length?data.map(d=>`
+    <tr>
+      <td class="mono" style="color:var(--amber);font-weight:700">${d.stageNo}</td>
+      <td class="mono">${d.date}</td>
+      <td style="font-size:12px">${d.proj}</td>
+      <td class="mono">${d.loc}</td>
+      <td>${d.contractor}</td>
+      <td style="font-size:12px">${d.items.map(i=>i.particular).join(', ')}</td>
+      <td>${d.items.map(i=>i.unit).join(', ')}</td>
+      <td style="font-family:'JetBrains Mono',monospace">${d.items.map(i=>i.qtyRequired).join(', ')}</td>
+      <td>${d.natureOfWork||'—'}</td>
+      <td>${d.requestedBy}</td>
+      <td>${d.cmName||'—'}</td>
+      <td>${sChip(d.status)}</td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-xs" onclick="openDemandDetail('${d.id}')">View</button>
+        ${d.status==='pending'&&role==='STORE'?`<button class="btn btn-green btn-xs" onclick="acknowledgeDemand('${d.id}')">Acknowledge</button>`:''}
+      </div></td>
+    </tr>`).join(''):'<tr><td colspan="13" style="text-align:center;padding:38px;color:var(--text3)">No demand notes yet</td></tr>';
+}
+
+function acknowledgeDemand(id){
+  const d=demands.find(x=>x.id===id); if(!d) return;
+  d.status='acknowledged'; d.notedBy=STAGES[role]||role;
+  saveData(); renderAll();
+  toast(id+' acknowledged by Store','green');
+}
+
+function openDemandDetail(id){
+  const d=demands.find(x=>x.id===id); if(!d) return;
+  const div=document.createElement('div');
+  div.className='overlay open'; div.id='dn-detail-'+id;
+  div.innerHTML=`<div class="modal modal-sm">
+    <div class="mh"><h2>Demand Note: ${d.stageNo}</h2><button class="mc" onclick="document.getElementById('dn-detail-${id}').remove()">×</button></div>
+    <div class="mb">
+      <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:12px;font-size:12.5px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><span style="color:var(--text3)">Stage:</span> <strong style="color:var(--amber)">${d.stageNo}</strong></div>
+          <div><span style="color:var(--text3)">Date:</span> ${d.date}</div>
+          <div><span style="color:var(--text3)">Project:</span> ${d.proj}</div>
+          <div><span style="color:var(--text3)">Location:</span> ${d.loc}</div>
+          <div><span style="color:var(--text3)">Contractor:</span> ${d.contractor}</div>
+          <div><span style="color:var(--text3)">Nature of Work:</span> ${d.natureOfWork||'—'}</div>
+          <div><span style="color:var(--text3)">Requested By:</span> ${d.requestedBy}</div>
+          <div><span style="color:var(--text3)">CM Name:</span> ${d.cmName||'—'}</div>
+          <div><span style="color:var(--text3)">Status:</span> ${sChip(d.status)}</div>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="background:var(--bg3)">
+          <th style="padding:7px 9px;border:1px solid var(--border);font-size:10px;font-weight:700;color:var(--text3)">Sl No</th>
+          <th style="padding:7px 9px;border:1px solid var(--border);font-size:10px;font-weight:700;color:var(--text3)">Particulars</th>
+          <th style="padding:7px 9px;border:1px solid var(--border);font-size:10px;font-weight:700;color:var(--text3)">Unit</th>
+          <th style="padding:7px 9px;border:1px solid var(--border);font-size:10px;font-weight:700;color:var(--text3)">Qty Required</th>
+        </tr></thead>
+        <tbody>${d.items.map((item,i)=>`<tr>
+          <td style="padding:7px 9px;border:1px solid var(--border);text-align:center">${i+1}</td>
+          <td style="padding:7px 9px;border:1px solid var(--border);font-weight:500">${item.particular}</td>
+          <td style="padding:7px 9px;border:1px solid var(--border)">${item.unit}</td>
+          <td style="padding:7px 9px;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-weight:600">${item.qtyRequired}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;font-size:12px">
+        <div style="border:1px solid var(--border);border-radius:7px;padding:10px"><div style="color:var(--text3);margin-bottom:4px">Requested by</div><div style="font-weight:600">${d.requestedBy}</div></div>
+        <div style="border:1px solid var(--border);border-radius:7px;padding:10px"><div style="color:var(--text3);margin-bottom:4px">Note Received by / Store Dept. Sign</div><div style="font-weight:600">${d.notedBy||'—'}</div></div>
+      </div>
+      <div class="fa">
+        ${d.status==='pending'&&role==='STORE'?`<button class="btn btn-green" onclick="acknowledgeDemand('${id}');document.getElementById('dn-detail-${id}').remove()">Acknowledge</button>`:''}
+        <button class="btn btn-ghost" onclick="document.getElementById('dn-detail-${id}').remove()">Close</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(div);
+  div.addEventListener('click',e=>{if(e.target===div) div.remove();});
+}
+
+// ═══════════════════════════════════════════════════════
+// INWARD — PL SELECTOR (select PL first, then show only that item)
+// ═══════════════════════════════════════════════════════
+function fillInwardPLSelect(poId){
+  // When PO is selected, populate PL dropdown instead of all items
+  const p=pos.find(x=>x.id===poId); if(!p) return;
+  const ind=indents.find(x=>x.id===p.indRef);
+  const srcItems=(p.lines&&p.lines.length)?p.lines.map(l=>({pl:l.code||'PL-?',item:l.desc,unit:l.unit,rate:l.rate||0,prQty:l.qty,mrCode:l.code,purpose:''})):
+                 (ind?ind.items:[]);
+  const plSel=document.getElementById('iw-pl-select');
+  plSel.innerHTML='<option value="">-- Select PL Number --</option>'+srcItems.map((item,idx)=>`<option value="${idx}">[${item.pl||('Item '+(idx+1))}] ${item.item||item.desc||''}</option>`).join('');
+  plSel.setAttribute('data-po', poId);
+  plSel._srcItems=srcItems;
+  document.getElementById('iw-pl-section').style.display='block';
+  document.getElementById('iw-items').innerHTML='';
+}
+
+function loadSelectedPL(){
+  const plSel=document.getElementById('iw-pl-select');
+  const idx=parseInt(plSel.value);
+  if(isNaN(idx)) return;
+  const poId=plSel.getAttribute('data-po');
+  const p=pos.find(x=>x.id===poId); if(!p) return;
+  const ind=indents.find(x=>x.id===p.indRef);
+  const srcItems=plSel._srcItems||[];
+  const item=srcItems[idx]; if(!item) return;
+  const wrap=document.getElementById('iw-items');
+  wrap.innerHTML=`<div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px">Selected PL — Enter all fields manually</div>`;
+  const d=document.createElement('div');
+  d.style.cssText='background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px';
+  d.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+      <span class="pl-tag">${item.pl||'—'}</span>
+      <div style="flex:1">
+        <div class="iw-item-info">${item.item||item.desc||''}</div>
+        <div class="iw-item-sub">MR Code: ${item.mrCode||item.code||'—'} &nbsp;|&nbsp; Indent PO Qty: <strong>${item.prQty||item.qty||0} ${item.unit}</strong></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px">
+      <div><div class="iw-lbl">Mat. desc as per indent (auto)</div><input id="iw-di-0" value="${item.item||item.desc||''}" readonly style="background:var(--bg4);color:var(--text3)"></div>
+      <div><div class="iw-lbl" style="color:var(--amber)">Mat. desc as per bill*</div><input id="iw-db-0" placeholder="As written on supplier bill" style="border-color:var(--amber)"></div>
+      <div><div class="iw-lbl">Unit*</div><input id="iw-un-0" placeholder="Enter unit"></div>
+      <div><div class="iw-lbl">Pending PR Qty*</div><input type="number" id="iw-pp-0" placeholder="0" min="0"></div>
+      <div><div class="iw-lbl" style="color:var(--teal)">Received Qty*</div><input type="number" id="iw-q-0" placeholder="0" min="0" oninput="calcIWRow(0)" style="border-color:var(--teal)"></div>
+      <div><div class="iw-lbl" style="color:var(--teal)">Basic Rate (₹)*</div><input type="number" id="iw-r-0" placeholder="0.00" min="0" oninput="calcIWRow(0)" style="border-color:var(--teal)"></div>
+      <div><div class="iw-lbl">Amount (auto ₹)</div><input id="iw-amt-0" readonly style="background:var(--bg4);color:var(--teal);font-family:'JetBrains Mono',monospace"></div>
+      <div><div class="iw-lbl">Tax % (GST)*</div><input type="number" id="iw-t-0" placeholder="18" min="0" max="100" oninput="calcIWRow(0)"></div>
+      <div><div class="iw-lbl">Tax Amount (auto ₹)</div><input id="iw-tax-0" readonly style="background:var(--bg4);color:var(--text3);font-family:'JetBrains Mono',monospace"></div>
+      <div><div class="iw-lbl">TCS (₹)</div><input type="number" id="iw-tcs-0" placeholder="0" min="0" oninput="calcIWRow(0)"></div>
+      <div><div class="iw-lbl">Transportation (₹)</div><input type="number" id="iw-tr-0" placeholder="0" min="0" oninput="calcIWRow(0)"></div>
+      <div><div class="iw-lbl">Weighments (₹)</div><input type="number" id="iw-wt-0" placeholder="0" min="0" oninput="calcIWRow(0)"></div>
+      <div><div class="iw-lbl">Total Amount (auto ₹)</div><input id="iw-tot-0" readonly style="background:var(--bg4);color:var(--white);font-family:'JetBrains Mono',monospace;font-weight:700"></div>
+      <div><div class="iw-lbl">Conversion Qty</div><input type="number" id="iw-cv-0" placeholder="1" value="1" min="0.001" step="0.001" oninput="calcIWRow(0)"></div>
+      <div><div class="iw-lbl">Purchased Qty (indent unit, auto)</div><input id="iw-pq-0" readonly style="background:var(--bg4);color:var(--blue);font-family:'JetBrains Mono',monospace"></div>
+      <div><div class="iw-lbl">Indent Unit*</div><input id="iw-iu-0" placeholder="Bag/Pcs/MT"></div>
+      <div><div class="iw-lbl">Purpose</div><input id="iw-pu-0" placeholder="Purpose"></div>
+    </div>`;
+  wrap.appendChild(d);
+  wrap._items=[{pl:item.pl||'—',item:item.item||item.desc,mrCode:item.mrCode||item.code,prQty:item.prQty||item.qty||0,unit:item.unit,rate:item.rate||0,purpose:item.purpose||''}];
+  wrap._count=1;
+}
+
+// ═══════════════════════════════════════════════════════
+// ISSUE CONFIRMATION (Store accepts/confirms dispatch)
+// ═══════════════════════════════════════════════════════
+function renderIssueConfirm(){
+  const pending=issues.filter(i=>!i.storeConfirmed);
+  document.getElementById('tbl-issueconfirm').innerHTML=pending.length?pending.map(i=>`
+    <tr>
+      <td class="mono">${i.id}</td>
+      <td class="mono">${i.docNo||'—'}</td>
+      <td class="mono">${i.date}</td>
+      <td style="font-weight:500">${i.material}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:700">${i.qty}</td>
+      <td>${i.unit}</td>
+      <td>${i.issuedTo||'—'}</td>
+      <td style="font-size:12px">${i.proj||'—'}</td>
+      <td>${i.storeConfirmed?'<span class="chip c-appr"><span class="cd"></span>Confirmed</span>':'<span class="chip c-pend"><span class="cd"></span>Pending Confirmation</span>'}</td>
+      <td>${role==='STORE'&&!i.storeConfirmed?`<button class="btn btn-green btn-xs" onclick="confirmIssue('${i.id}')">✓ Confirm Dispatch</button>`:
+           i.storeConfirmed?`<span style="font-size:11px;color:var(--green)">✓ Dispatched</span>`:''}</td>
+    </tr>`).join(''):'<tr><td colspan="10" style="text-align:center;padding:38px;color:var(--text3)">No pending confirmations</td></tr>';
+}
+
+function confirmIssue(id){
+  const i=issues.find(x=>x.id===id); if(!i) return;
+  i.storeConfirmed=true;
+  i.confirmedBy=STAGES[role]||role;
+  i.confirmedDate=TODAY;
+  saveData(); renderAll();
+  toast('Issue '+id+' confirmed dispatched to site','green');
+}
+
+// openInwardDetail
+function openInwardDetail(id){
+  const g=inwards.find(x=>x.id===id); if(!g) return;
+  const v=findVend(g.vendId);
+  const p=pos.find(x=>x.id===g.poRef);
+  const ind=p?indents.find(x=>x.id===p.indRef):null;
+  alert('Inward Record: '+g.id+'\nPO: '+g.poRef+'\nSupplier: '+(v?.name||'—')+'\nInvoice: '+(g.invRef||'—')+'\nDate: '+g.date+'\nReceived By: '+g.recBy+'\nItems: '+g.items.map(i=>(i.pl||'?')+' | '+(i.descAsPerIndent||i.name)+': '+i.recQty+'/'+i.poQty+' '+i.unit).join(', ')+'\nRemarks: '+(g.remarks||'—'));
+}
+
 
 // ═══════════════════════════════════════════════════════
 // APPROVAL FLOW
@@ -1610,12 +2114,18 @@ function submitPO(status){
     prepBy:document.getElementById('po-prepby')?.value||'',
     signBy:document.getElementById('po-signby')?.value||'',
     desig:document.getElementById('po-desig')?.value||'',
-    lines, subtotal, gstPct, gstAmt, value, status, iwStatus:'Awaiting'
+    lines, subtotal, gstPct, gstAmt, value,
+    status:'pending_pm',   // PO always goes to PM for approval first
+    pmApproved:null,
+    iwStatus:'Awaiting'
   });
-  if(indRef){const i=indents.find(x=>x.id===indRef);if(i){i.poNo=poNo;i.history.push({role:'COMM',action:'PO Raised',note:'PO '+poNo+' issued to vendor',date:TODAY});i.stage='STORE';}}
+  if(indRef){
+    const i=indents.find(x=>x.id===indRef);
+    if(i){i.poNo=poNo;i.history.push({role:'COMM',action:'PO Raised — Awaiting PM Approval',note:'PO '+poNo+' submitted. PM approval required.',date:TODAY});}
+  }
   closeModal('mPO');
   saveData(); renderAll();
-  toast(poNo+' '+(status==='sent'?'issued to vendor':'saved as draft'),'teal');
+  toast(poNo+' submitted — awaiting PM approval','teal');
 }
 
 function numberToWords(n){
@@ -1852,7 +2362,7 @@ function submitInward(){
     s.inwardQty=(s.inwardQty||0)+item.recQty;
   });
   const full=items.every(i=>i.recQty>=i.poQty);
-  p.iwStatus=full?'Full GRN':'Partial GRN';
+  p.iwStatus=full?'Full Inward':'Partial Inward';
   if(full) p.status='closed';
   if(ind){
     ind.stage='STORE'; ind.status='completed';
@@ -1928,8 +2438,6 @@ function openModal(id){
     document.getElementById('indent-rows').innerHTML=''; irIds=[];
     addIR();
     document.getElementById('fi-date').value=TODAY;
-    document.getElementById('fi-reqdate').value='';
-    document.getElementById('fi-pono').value='';
     document.getElementById('fi-proj').value='';
     document.getElementById('fi-indno').value='Indent No:'+String(indents.length+1).padStart(2,'0');
     document.getElementById('fi-proj-other-wrap').style.display='none';
@@ -1953,9 +2461,19 @@ function openModal(id){
   }
   if(id==='mInward'){
     const ps=document.getElementById('iw-po');
-    ps.innerHTML='<option value="">-- Select PO (Sent status) --</option>'+pos.filter(p=>p.status==='sent').map(p=>`<option value="${p.id}">${p.id} – ${findVend(p.vendId)?.name||p.vendId}</option>`).join('');
+    ps.innerHTML='<option value="">-- Select PO --</option>'+pos.filter(p=>p.status==='sent').map(p=>`<option value="${p.id}">${p.id} – ${findVend(p.vendId)?.name||p.vendId}</option>`).join('');
     document.getElementById('iw-date').value=TODAY;
     document.getElementById('iw-items').innerHTML='';
+    document.getElementById('iw-pl-section').style.display='none';
+    ['iw-inv','iw-veh','iw-recby','iw-credit','iw-remarks'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  }
+  if(id==='mDemand'){
+    document.getElementById('dn-rows').innerHTML=''; dnRowIds=[]; dnRowSeq=0;
+    document.getElementById('dn-date').value=TODAY;
+    ['dn-stage','dn-loc','dn-cont','dn-work','dn-reqby','dn-cm'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+    document.getElementById('dn-proj').value='';
+    document.getElementById('dn-stage-preview').textContent='—';
+    addDNRow();
   }
   if(id==='mIssue'){
     const ms=document.getElementById('iss-mat');
@@ -2125,19 +2643,18 @@ function exportCSV(type){
     let sl=1;
     indents.forEach(i=>{
       i.items.forEach(m=>{
-        rows.push([sl++,i.date,i.date.substring(0,7),m.pl,m.indentNo||i.indNo,m.category||'',m.mrCode||'',m.item,m.prQty,m.unit,i.proj,m.purpose||'',m.revision||'R0',m.addSpec||'',m.remarks||'']);
+        rows.push([sl++,i.date,i.date?i.date.substring(0,7):'',m.pl,m.indentNo||i.indNo,m.category||'',m.mrCode||'',m.item,m.prQty,m.unit,i.proj,m.purpose||'',m.revision||'R0',m.addSpec||'',m.remarks||'']);
       });
     });
     fn='Indent_Format';
   } else if(type==='po'){
-    h=['PO Number','Project','Indent Ref','Indent No','Vendor','Vendor Address','Contact Person','Phone','PO Date','Expected Delivery','Subtotal (₹)','GST %','GST Amount (₹)','Total PO Value (₹)','Payment Terms','Delivery Terms','Deliver Address','GSTIN','Prepared By','Authorized Signatory','Designation','Note','Status','Inward Status'];
+    h=['PO Number','Project','Indent Ref','Indent No','Vendor','Vendor Address','Contact Person','Phone','PO Date','Expected Delivery','Subtotal (Rs)','GST %','GST Amount (Rs)','Total PO Value (Rs)','Payment Terms','Delivery Terms','Deliver Address','GSTIN','Prepared By','Authorized Signatory','Designation','Note','Status','Inward Status'];
     rows=pos.map(p=>{
       const v=findVend(p.vendId);
-      return [p.id,p.proj||'',p.indRef||'',p.indNo||'',v?.name||'',p.vaddr||v?.addr||'',p.vcon||v?.con||'',p.phone||v?.ph||'',p.date,p.delDate||'',p.subtotal||p.value||0,p.gstPct||18,p.gstAmt||0,p.value||0,p.payTerms,p.delTerms,p.addr||'',p.gstin||'',p.prepBy||'',p.signBy||'',p.desig||'',p.note||'',p.status.toUpperCase(),p.iwStatus||'Awaiting'];
+      return [p.id,p.proj||'',p.indRef||'',p.indNo||'',v?.name||'',p.vaddr||v?.addr||'',p.vcon||v?.con||'',p.phone||v?.ph||'',p.date,p.delDate||'',p.subtotal||p.value||0,p.gstPct||18,p.gstAmt||0,p.value||0,p.payTerms||'',p.delTerms||'',p.addr||'',p.gstin||'',p.prepBy||'',p.signBy||'',p.desig||'',p.note||'',p.status.toUpperCase(),p.iwStatus||'Awaiting'];
     });
     fn='PO_Register';
   } else if(type==='inward'){
-    // Exact 29-column order from civil team 'Inward Format' Excel sheet (including typos & Blanks col)
     h=['SL No','Project','Date','Supplier Name','Invoice Ref No','PL No','Indent Ref No','Material Code','Material description as per indent','Material Description as Per Bill','unit','Pending PR','Received Qty','Basic Rate','Amount','Tax Amount','TCS','Transportataion','Weighments','Total amount','Tax Percent','Purpose','Remarks','Credit Note','Blanks','Conversion Qty','Purchased Qty in indent unit','Indent unit','Stage code'];
     let sl=1;
     inwards.forEach(g=>{
@@ -2152,37 +2669,7 @@ function exportCSV(type){
         const total=item.total!==undefined?item.total:amt+taxAmt+tcs+transport+weighment;
         const convQty=item.convQty||1;
         const purchQty=item.purchasedQtyInIndentUnit!==undefined?item.purchasedQtyInIndentUnit:item.recQty*convQty;
-        rows.push([
-          sl++,                                    // Col 1:  SL No
-          ind?.proj||'',                           // Col 2:  Project
-          g.date,                                  // Col 3:  Date
-          findVend(g.vendId)?.name||'',            // Col 4:  Supplier Name
-          g.invRef||'',                            // Col 5:  Invoice Ref No
-          item.pl||'',                             // Col 6:  PL No
-          ind?.indNo||'',                          // Col 7:  Indent Ref No
-          item.mrCode||item.code||'',              // Col 8:  Material Code
-          item.descAsPerIndent||item.name||'',     // Col 9:  Material description as per indent
-          item.descAsPerBill||'',                  // Col 10: Material Description as Per Bill
-          item.unit||'',                           // Col 11: unit
-          item.pendingPR||item.poQty||0,           // Col 12: Pending PR
-          item.recQty||0,                          // Col 13: Received Qty
-          item.basicRate||0,                       // Col 14: Basic Rate
-          +amt.toFixed(2),                         // Col 15: Amount
-          +taxAmt.toFixed(2),                      // Col 16: Tax Amount
-          tcs,                                     // Col 17: TCS
-          transport,                               // Col 18: Transportataion (exact typo from Excel)
-          weighment,                               // Col 19: Weighments
-          +total.toFixed(2),                       // Col 20: Total amount
-          item.taxPct||0,                          // Col 21: Tax Percent
-          item.purpose||'',                        // Col 22: Purpose
-          g.remarks||'',                           // Col 23: Remarks
-          g.creditNote||'',                        // Col 24: Credit Note
-          '',                                      // Col 25: Blanks (empty col in Excel)
-          convQty,                                 // Col 26: Conversion Qty
-          +purchQty.toFixed(3),                    // Col 27: Purchased Qty in indent unit
-          item.indentUnit||item.unit||'',          // Col 28: Indent unit
-          ''                                       // Col 29: Stage code
-        ]);
+        rows.push([sl++,ind?.proj||'',g.date,findVend(g.vendId)?.name||'',g.invRef||'',item.pl||'',ind?.indNo||'',item.mrCode||item.code||'',item.descAsPerIndent||item.name||'',item.descAsPerBill||'',item.unit||'',item.pendingPR||item.poQty||0,item.recQty||0,item.basicRate||0,+amt.toFixed(2),+taxAmt.toFixed(2),tcs,transport,weighment,+total.toFixed(2),item.taxPct||0,item.purpose||'',g.remarks||'',g.creditNote||'','',convQty,+purchQty.toFixed(3),item.indentUnit||item.unit||'','']);
       });
     });
     fn='Inward_Format';
@@ -2195,20 +2682,30 @@ function exportCSV(type){
     });
     fn='Summary';
   } else if(type==='issues'){
-    h=['Issued Date','Month','Material Category','Code','Issued Material','Issued Qty','Unit','Doc No.','Project','Location','Purpose','Contractor Name','Engineer Name','Remarks','Issued Qty in Indent unit','PR unit'];
-    rows=issues.map(i=>[i.date,i.date.substring(0,7),i.cat||'',i.code||'',i.material,i.qty,i.unit,i.docNo||i.id,i.proj||'',i.loc||'',i.purpose||'',i.contractor||'',i.engineer||'',i.remarks||'',i.qty,i.unit]);
+    h=['Issued Date','Month','Material Category','Code','Issued Material','Issued Qty','Unit','Doc No.','Project','Location','Purpose','Contractor Name','Engineer Name','Remarks','Co-eff','Issued Qty in Indent unit','PR unit','Stage Code'];
+    rows=issues.map(i=>[i.date,i.date?i.date.substring(0,7):'',i.cat||'',i.code||'',i.material,i.qty,i.unit,i.docNo||i.id,i.proj||'',i.loc||'',i.purpose||'',i.contractor||'',i.engineer||'',i.remarks||'',1,i.qty,i.unit,i.stageCode||'']);
     fn='Issue_Report';
+  } else if(type==='demand'){
+    h=['Demand Note ID','Stage No','Date','Project','Location','Contractor','Nature of Work','Requested By','CM Name','Particulars','Unit','Qty Required','Status','Noted By'];
+    demands.forEach(d=>{
+      d.items.forEach(item=>{
+        rows.push([d.id,d.stageNo,d.date,d.proj,d.loc,d.contractor,d.natureOfWork||'',d.requestedBy,d.cmName||'',item.particular,item.unit,item.qtyRequired,d.status,d.notedBy||'']);
+      });
+    });
+    fn='Demand_Notes';
   }
-  const csv=[h,...rows].map(r=>r.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const csv=[h,...rows].map(r=>r.map(cell=>'"'+String(cell===null||cell===undefined?'':cell).replace(/"/g,'""')+'"').join(',')).join('\n');
   const blob=new Blob([BOM+csv],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=fn+'_'+TODAY+'.csv'; a.click();
-  toast('Downloaded ✓','green');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=fn+'_'+TODAY+'.csv';
+  a.click();
+  toast('Downloaded: '+fn,'green');
 }
 
 function exportAll(){
-  ['indents','po','inward','stock','issues'].forEach((t,i)=>setTimeout(()=>exportCSV(t),i*350));
-  toast('Downloading all 5 reports…','teal');
+  ['indents','po','inward','stock','issues','demand'].forEach((t,i)=>setTimeout(()=>exportCSV(t),i*350));
+  toast('Downloading all reports…','teal');
 }
 
 // ═══════════════════════════════════════════════════════
