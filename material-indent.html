@@ -1429,7 +1429,9 @@ function applyRoleNav(){
   // Show/hide nav buttons
   document.querySelectorAll('nav .nbtn').forEach(btn=>{
     const page=btn.id?.replace('nav-','');
-    if(page && allowed.length){
+    // Never hide modal-trigger buttons (import) or always-visible ones
+    if(!page || page==='import') return;
+    if(allowed.length){
       btn.style.display=allowed.includes(page)?'':'none';
     }
   });
