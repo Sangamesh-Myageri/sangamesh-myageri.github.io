@@ -5167,7 +5167,6 @@
     // INIT
     // ═══════════════════════════════════════════════════════
     initData();
-    initImportListeners();
     loadTheme();
     document.getElementById('tbDate').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 
@@ -5184,99 +5183,13 @@
 
 
 
-    function readExcelFile(fileInputId, tab) {
-      const input = document.getElementById(fileInputId);
-      const file = input.files[0];
-      if (!file) { return; }
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        try {
-          let rows = [];
-          if (file.name.endsWith('.csv')) {
-            // CSV parsing
-            const text = e.target.result;
-            const lines = text.split('\n').filter(l => l.trim());
-            rows = lines.map(line => {
-              // Handle quoted fields
-              const cols = []; let cur = ''; let inQ = false;
-              for (let i = 0; i < line.length; i++) {
-                if (line[i] === '"') { inQ = !inQ; }
-                else if (line[i] === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-                else { cur += line[i]; }
-              }
-              cols.push(cur.trim());
-              return cols;
-            });
-          } else {
-            // XLSX parsing via SheetJS
-            const data = new Uint8Array(e.target.result);
-            const wb = XLSX.read(data, { type: 'array', cellDates: true });
-            const ws = wb.Sheets[wb.SheetNames[0]];
-            rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
-            rows = rows.filter(r => r.some(c => c !== null && c !== undefined && c !== ''));
-          }
-          if (rows.length < 2) { toast('File appears empty or has only headers', 'rose'); return; }
-          _importData[tab] = rows;
-          showImportPreview(tab, rows);
-        } catch (err) {
-          toast('Error reading file: ' + err.message, 'rose');
-          console.error(err);
-        }
-      };
-      if (file.name.endsWith('.csv')) {
-        reader.readAsText(file);
-      } else {
-        reader.readAsArrayBuffer(file);
-      }
-    }
-
-    function showImportPreview(tab, rows) {
-      const headers = rows[0];
-      const dataRows = rows.slice(1);
-      const preview = dataRows.slice(0, 5);
-
-      const tableHtml = `<table style="width:100%;border-collapse:collapse;font-size:11.5px">
-    <thead><tr style="background:var(--bg3)">${headers.map(h => `<th style="padding:6px 8px;text-align:left;font-size:10px;font-weight:700;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap">${h || ''}</th>`).join('')}</tr></thead>
-    <tbody>${preview.map(row => `<tr>${headers.map((_, i) => `<td style="padding:5px 8px;border-bottom:1px solid var(--bg3);white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis">${row[i] || ''}</td>`).join('')}</tr>`).join('')}</tbody>
-  </table>`;
-
-      document.getElementById('imp-preview-' + tab + '-table').innerHTML = tableHtml;
-      document.getElementById('imp-count-' + tab).textContent = dataRows.length + ' rows ready to import';
-      document.getElementById('imp-preview-' + tab).style.display = 'block';
-      document.getElementById('imp-result').style.display = 'none';
-    }
-
-
-
-    function col(row, headers, ...names) {
-      // Find value by column name (case-insensitive, partial match)
-      for (const name of names) {
-        const idx = headers.findIndex(h => (h || '').toLowerCase().includes(name.toLowerCase()));
-        if (idx >= 0 && row[idx] !== undefined && row[idx] !== '') return String(row[idx]).trim();
-      }
-      return '';
-    }
-
-    function colNum(row, headers, ...names) {
-      const v = col(row, headers, ...names);
-      return parseFloat(v) || 0;
-    }
-
-    // Wire up file input change events after DOM ready
-    document.addEventListener('DOMContentLoaded', () => {
-      ['indent', 'inward', 'issues'].forEach(tab => {
-        const el = document.getElementById('imp-file-' + tab);
-        if (el) el.addEventListener('change', () => readExcelFile('imp-file-' + tab, tab));
-      });
-    });
-
     // ═══════════════════════════════════════════════════════
     // IMPORT — FIXED IMPLEMENTATION
     // Replace (or merge) this into material-indent.html
     // ═══════════════════════════════════════════════════════
 
     // Stores parsed rows keyed by type: 'indent' | 'inward' | 'issues'
-    const _importData = {};
+    const _importData = {}
 
     // ── Switch between import tabs ──────────────────────────
     function switchImportTab(type) {
@@ -5473,33 +5386,38 @@
 
     // ── Indent import ───────────────────────────────────────
     function importIndentRows(rows) {
-      // Group rows by Indent No to create one indent per group
       const groups = {};
+      let lastIndNo = '', lastProj = '', lastDate = '';
+
       rows.forEach(r => {
-        // Flexible column name matching
-        const indNo = r['Indent No'] || r['Indent No.'] || r['Indent No:'] || r['IndentNo'] || '';
-        const date = normaliseDate(r['PR Date'] || r['Date'] || '');
+        let indNo = r['Indent No'] || r['Indent No.'] || r['Indent No:'] || r['IndentNo'] || '';
+        let proj = r['Project'] || r['Project Name'] || '';
+        let date = normaliseDate(r['PR Date'] || r['Date'] || '');
+
+        if (indNo) lastIndNo = indNo; else indNo = lastIndNo;
+        if (proj) lastProj = proj; else proj = lastProj;
+        if (date) lastDate = date; else date = lastDate;
+
         const pl = r['PL No.'] || r['PL No'] || r['PL'] || '';
         const mrCode = r['MR Code'] || r['MRCode'] || r['Code'] || '';
         const item = r['Item'] || r['Item/Material'] || r['Material'] || r['Description'] || '';
         const prQty = parseFloat(r['PR Qty'] || r['Qty'] || '0') || 0;
         const unit = r['Unit'] || r['Units'] || 'Pcs';
-        const proj = r['Project'] || r['Project Name'] || '';
         const purpose = r['Purpose'] || '';
         const cat = r['Material Category'] || r['Category'] || MAT_CATS[0];
         const rev = r['Revision No'] || r['Revision'] || 'R0';
         const addSpec = r['Additional Specification'] || r['Specification'] || '';
 
-        if (!indNo || !item) return; // skip rows without key fields
+        if (!indNo || !item) return;
 
         const key = (proj + '||' + indNo).toLowerCase();
         if (!groups[key]) {
           groups[key] = { indNo, proj, date, items: [] };
         }
         groups[key].items.push({
-          pl, mrCode, item, unit, prQty, purpose, category: cat,
-          revision: rev, addSpec, rate: 0, amount: 0,
-          indentNo: indNo
+          pl, mrCode, item, unit, prQty, purpose,
+          category: cat, revision: rev, addSpec,
+          rate: 0, amount: 0, indentNo: indNo
         });
       });
 
@@ -5521,7 +5439,6 @@
           status: 'pending',
           history: [{ role: 'QS', action: 'Imported', note: 'Imported from Excel', date: TODAY }]
         });
-        // Register in stock
         g.items.forEach(it => {
           if (it.pl && !stock.find(s => s.pl === it.pl)) {
             stock.push({
@@ -5706,6 +5623,7 @@
         }
       });
     }
+    initImportListeners();
 
   </script>
 </body>
