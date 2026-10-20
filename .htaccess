@@ -1,6 +1,9 @@
 # Enable URL Rewriting
 RewriteEngine On
 
+# Redirect the legacy Scentoraa page to the current app.
+RewriteRule ^scentoraa\.html$ https://sangameshmyageri.in/scentoraa/ [R=301,L,NE]
+
 # Remove .html extension from URLs
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
